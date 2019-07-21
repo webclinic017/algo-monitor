@@ -1,0 +1,16 @@
+{
+    "id": "id",
+    "label": "categoria",
+    "config": {"a": "params"},
+    "result": {
+        "real": [123],
+        "pred": [122],
+        "metrics": {
+            "free": 123,
+            "to": "abc",
+            "write": [1,2,3]
+        }
+    },
+    "start": 123,
+    "end": 123
+}
