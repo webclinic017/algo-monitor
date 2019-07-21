@@ -1,5 +1,6 @@
 import json
 import jsonpickle
+import msgpack
 
 def fullname(c):
   module = c.__module__
@@ -28,6 +29,14 @@ class BaseClass():
 
     def toJson(self):
         return jsonpickle.encode(self, unpicklable=False)
+
+    @classmethod
+    def fromListDict(cls, arr):
+        return [cls.fromDict(a) for a in arr]
+
+    @staticmethod
+    def toListDict(arr):
+        return [a.toDict() for a in arr]
 
     @classmethod
     def fromListJson(cls, value):

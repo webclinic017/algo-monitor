@@ -12,12 +12,12 @@
 
 	@Component({
 		components: {
-		HelloWorld,
+			HelloWorld
 		},
 	})
 	export default class Home extends Vue {
 		created() {
-			axios.get('/api/1').then(r => console.log(r));
+			axios.get('/api/results').then(r => console.log(r));
 		}
 	}
 </script>

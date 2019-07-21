@@ -9,6 +9,8 @@ from controllers.strat import strat_controller
 
 app = Flask(__name__, static_folder='../frontend/dist')
 
+app.url_map.strict_slashes = False
+
 app.register_blueprint(results_controller)
 app.register_blueprint(strat_controller)
 

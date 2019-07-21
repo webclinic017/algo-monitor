@@ -1,3 +1,5 @@
+<!-- Lista/Form idk -->
+
 <template>
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png">
@@ -17,7 +19,7 @@
 	})
 	export default class Home extends Vue {
 		created() {
-			axios.get('/api/1').then(r => console.log(r));
+			axios.get('/api/results').then(r => console.log(r));
 		}
 	}
 </script>

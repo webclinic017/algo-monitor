@@ -2,8 +2,9 @@
 
 from flask import Blueprint, request
 import json
+from models.process_manager import ProcessManager
 from models.strat import Strat
-from services.strats import save_strat, get_strat, run_strat, upload_strat, run_status, start_status_check
+from services.strats import save_strat, get_strat, run_strat, upload_strat, start_status_check, create_config
 from werkzeug import secure_filename
 import uuid
 
@@ -11,15 +12,13 @@ strat_controller = Blueprint('strat_controller', __name__)
 
 ALLOWED_EXTENSIONS = ['zip']
 
-process_list = []
+status_job = start_status_check(10)
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-status_job = start_status_check(process_list)
-
-@strat_controller.route('/api/upload', methods=['POST'])
+@strat_controller.route('/api/upload/', methods=['POST'])
 def upload():
     if 'file' not in request.files:
         # flash('No file part')
@@ -34,23 +33,33 @@ def upload():
         return json.dumps({'status': 'error', 'code': 3}), 400, {'ContentType':'application/json'}
         
     filename = secure_filename(file.filename)
-    entry_path = request.form['entry_path']
     id = str(uuid.uuid4())
+    name = request.form['name']
+    entry_path = request.form['entry_path']
 
-    strat = Strat(id,{},entry_path)
+    strat = Strat(id,name,{},entry_path)
     upload_strat(file.read(), strat)
     save_strat(strat)
     
     return json.dumps({'status': 'success', 'id': id}), 200, {'ContentType':'application/json'}
 
-@strat_controller.route('/api/run', methods=['POST'])
+@strat_controller.route('/api/run/', methods=['POST'])
 def run():
+    # TODO: receber params
     json_r = request.get_json()
 
-    id = json_r['id']
-    process = run_strat(id)
+    id = str(uuid.uuid4())
+    strat_id = json_r['id']
+    strat = get_strat(strat_id)
+    create_config(id, strat_id, [{
+        'id': id,
+        'strat': strat.name,
+        'strat_id': strat.id
+    }])
+    process = run_strat(id, strat_id)
 
-    if process is None: return json.dumps({'status': 'error', 'code': 1}), 400, {'ContentType':'application/json'}
+    if process is None: return json.dumps({'status': 'error', 'code': 1}), 404, {'ContentType':'application/json'}
 
-    process_list.append(process)
-    return json.dumps({'status': 'success'}), 200, {'ContentType':'application/json'}
+    ProcessManager.add(id, strat_id, process)
+
+    return json.dumps({'status': 'success', 'id': id, 'strat_id': strat_id}), 200, {'ContentType':'application/json'}

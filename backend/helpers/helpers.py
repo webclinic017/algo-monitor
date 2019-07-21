@@ -1,6 +1,7 @@
 import zipfile
 import os
 import io
+import json
 
 def zipdir(out_path, dir_path):
     with zipfile.ZipFile(out_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
@@ -19,7 +20,13 @@ def unzipdir_bytes(file_bytes, out_dir):
     with zipfile.ZipFile(io.BytesIO(file_bytes), 'r') as zf:
         zf.extractall(out_dir)
 
-
 def mkdir_conditional(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
+
+def is_json(myjson):
+	try:
+		json_object = json.loads(myjson)
+	except:
+		return False
+	return True

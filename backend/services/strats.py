@@ -2,13 +2,16 @@ from models.strat import Strat
 from repository.firestore import save as fs_save, get as fs_get, get_all as fs_get_all
 from repository.storage import upload as st_upload, download as st_download
 from helpers.helpers import zipdir, unzipdir, unzipdir_bytes
+from helpers.interval import Interval
+from models.process_manager import ProcessManager
+from services.results import dump_local_results
 from subprocess import Popen
 import os
 import platform
 import psutil
 import zipfile
 import io
-from helpers.interval import Interval
+import json
 
 _collection = 'strats'
 
@@ -36,7 +39,7 @@ def get_strat(id: str):
     return strat
 
 def get_strats_list():
-    strats = [Strat.fromDict(s) for s in fs_get_all(_collection)]
+    strats = Strat.fromListDict(fs_get_all(_collection))
     return strats
 
 def get_all_strats():
@@ -46,15 +49,30 @@ def get_all_strats():
         strats_full.append(get_strat(s))
     return strats
 
-def run_strat(id: str):
-    strat = get_strat(id)
+def create_config(id: str, strat_id: str, params: list):
+    strat = get_strat(strat_id)
+    if strat is None: return None
+
+    config_path = f'public/strat_{strat.id}/config_{id}.json'
+    with open(config_path, 'w') as file:
+        file.write(json.dumps(params))
+
+    return config_path
+
+def remove_config(id: str, strat_id: str):    
+    config_path = f'public/strat_{strat_id}/config_{id}.json'
+    if os.path.isfile(config_path):
+        os.remove(config_path)
+
+def run_strat(id: str, strat_id: str):
+    strat = get_strat(strat_id)
     if strat is None: return None
 
     plat = platform.system()
     if plat == 'Windows':
-        process = Popen(f'python {strat.entry_path}', cwd=f'public/strat_{strat.id}')
+        process = Popen(f'python {strat.entry_path} {id}', cwd=f'public/strat_{strat.id}')
     else:
-        process = Popen(['python', strat.entry_path], cwd=f'public/strat_{strat.id}')
+        process = Popen(['python', strat.entry_path, id], cwd=f'public/strat_{strat.id}')
 
     return process
 
@@ -63,14 +81,16 @@ def run_status(process):
 
 def stop_strat(process):
     if run_status(process): process.kill()
-    return process.pid
-    
-def status_check(process_list):
-    for p in process_list[:]:
-        if not run_status(p):
-            process_list.remove(p)
+    return process.pid    
 
-def start_status_check(process_list):
-    interval = Interval(lambda: status_check(process_list), 10, 'status_check')
+def start_status_check(interval):
+    interval = Interval(lambda: status_check(), interval, 'status_check')
     interval.start()
     return interval
+
+def status_check():
+    for p in ProcessManager.process_list[:]:
+        dump_local_results(p['strat_id'])
+        if not run_status(p['process']):
+            ProcessManager.remove(p['id'])
+            remove_config(p['id'], p['strat_id'])
