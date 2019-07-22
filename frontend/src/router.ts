@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
-import Result from './views/Result.vue'
+import ResultId from './views/ResultId.vue'
+import ResultLabel from './views/ResultLabel.vue'
 import ResultsList from './views/ResultsList.vue'
-import RunStrat from './views/RunStrat.vue'
-import Upload from './views/Upload.vue'
+import StratRun from './views/StratRun.vue'
+import StratCreate from './views/StratCreate.vue'
 
 Vue.use(Router)
 
@@ -15,27 +16,50 @@ export default new Router({
     {
       path: '/',
       name: 'home',
+      meta: {
+        title: 'Home'
+      },
       component: Home
     },
     {
-      path: '/result',
-      name: 'result',
-      component: Result
+      path: '/result/id/:id',
+      name: 'result-id',
+      meta: {
+        title: 'Resultado'
+      },
+      component: ResultId
     },
     {
-      path: '/results-list',
-      name: 'results-list',
+      path: '/result/label/:label',
+      name: 'result-label',
+      meta: {
+        title: 'Resultado'
+      },
+      component: ResultLabel
+    },
+    {
+      path: '/results',
+      name: 'results',
+      meta: {
+        title: 'Resultados'
+      },
       component: ResultsList
     },
     {
-      path: '/run-strat',
-      name: 'run-strat',
-      component: RunStrat
+      path: '/strat/run',
+      name: 'strat-run',
+      meta: {
+        title: 'Rodar Estratégia'
+      },
+      component: StratRun
     },
     {
-      path: '/upload',
-      name: 'upload',
-      component: Upload
+      path: '/strat/create',
+      name: 'strat-create',
+      meta: {
+        title: 'Criar Estratégia'
+      },
+      component: StratCreate
     }
     // {
     //   path: '/about',

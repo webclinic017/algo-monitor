@@ -1,25 +1,28 @@
 <!-- Lista -->
 
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div class="result-list">
+    <!-- <img alt="Vue logo" src="../assets/logo.png">
+    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/> -->
+	<ul>
+		<li v-for="result in results" :key="result.id">
+            <router-link :to="{name:'result-id',params:{'id':result.id}}">{{ result.id }}</router-link> |
+			<router-link :to="{name:'result-label',params:{'label':result.label}}">{{ result.label }}</router-link>
+		</li>
+	</ul>
   </div>
 </template>
 
 <script lang="ts">
 	import { Component, Vue } from 'vue-property-decorator';
-	import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 	import axios from 'axios'
 
-	@Component({
-		components: {
-		HelloWorld,
-		},
-	})
-	export default class Home extends Vue {
-		created() {
-			axios.get('/api/results').then(r => console.log(r));
+	@Component({})
+	export default class ResultsList extends Vue {
+		results: any[] = [];
+
+		async created() {
+			this.results = (await axios.get('/api/results')).data;
 		}
 	}
 </script>

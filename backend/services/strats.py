@@ -12,11 +12,16 @@ import psutil
 import zipfile
 import io
 import json
+import shutil
 
 _collection = 'strats'
 
 def upload_strat(file_bytes, strat):
     unzipdir_bytes(file_bytes, f'public/strat_{strat.id}')
+    if not os.path.isfile(os.path.join(f'public/strat_{strat.id}', strat.entry_path)):
+        shutil.rmtree(f'public/strat_{strat.id}', ignore_errors=True)
+        return False
+    return True
 
 def save_strat(strat: Strat):
     strat_path = f'public/strat_{strat.id}'

@@ -4,7 +4,7 @@ from flask import Blueprint, request
 import json
 from models.process_manager import ProcessManager
 from models.strat import Strat
-from services.strats import save_strat, get_strat, run_strat, upload_strat, start_status_check, create_config
+from services.strats import save_strat, get_strat, run_strat, upload_strat, start_status_check, create_config, get_strats_list
 from werkzeug import secure_filename
 import uuid
 
@@ -18,7 +18,12 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@strat_controller.route('/api/upload/', methods=['POST'])
+@strat_controller.route('/api/strat/list/')
+def get_list():
+    strats = get_strats_list()
+    return Strat.toListJson(strats), 200, {'ContentType':'application/json'}
+
+@strat_controller.route('/api/strat/upload/', methods=['POST'])
 def upload():
     if 'file' not in request.files:
         # flash('No file part')
@@ -34,16 +39,20 @@ def upload():
         
     filename = secure_filename(file.filename)
     id = str(uuid.uuid4())
-    name = request.form['name']
+    name = request.form['strat_name']
     entry_path = request.form['entry_path']
-
-    strat = Strat(id,name,{},entry_path)
-    upload_strat(file.read(), strat)
-    save_strat(strat)
+    params = json.loads(request.form['params'])
     
+    strat = Strat(id,name,params,entry_path)
+    success = upload_strat(file.read(), strat)
+
+    if not success: 
+        return json.dumps({'status': 'error', 'code': 4}), 400, {'ContentType':'application/json'}
+
+    save_strat(strat)    
     return json.dumps({'status': 'success', 'id': id}), 200, {'ContentType':'application/json'}
 
-@strat_controller.route('/api/run/', methods=['POST'])
+@strat_controller.route('/api/strat/run/', methods=['POST'])
 def run():
     # TODO: receber params
     json_r = request.get_json()
