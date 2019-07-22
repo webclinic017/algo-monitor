@@ -11,6 +11,7 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "noImplicitAny": false, // evita erro ao procurar por @types não existentes
     "types": [
       "webpack-env"
     ],
