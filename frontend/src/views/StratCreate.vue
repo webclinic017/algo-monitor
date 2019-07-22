@@ -50,11 +50,7 @@
 	import JSONEditor, { JSONEditorOptions, JSONEditorMode} from 'jsoneditor';
 	import _ from 'lodash';
 
-	@Component({
-		components: {
-		// HelloWorld,
-		},
-	})
+	@Component({})
 	export default class StratCreate extends Vue {
 		private editor!: any;
 		private fileName: string = '';

@@ -1,9 +1,5 @@
-<!-- Lista -->
-
 <template>
   <div class="result-list">
-    <!-- <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/> -->
 	<ul>
 		<li v-for="result in results" :key="result.id">
             <router-link :to="{name:'result-id',params:{'id':result.id}}">{{ result.id }}</router-link> |

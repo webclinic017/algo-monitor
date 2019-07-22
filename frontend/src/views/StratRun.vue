@@ -1,5 +1,3 @@
-<!-- Form -->
-
 <template>
   <div class="strat-run">
 	  	<select v-model="selectedId" @change="onStratSelect">
@@ -67,6 +65,7 @@
 				console.log(p);
 				console.log(typeof params[p]);
 				// TODO: Fazer type check do parametro e criar novo schema baseado nos tipos
+				// ou utilizar jsoneditor
 			}
 		}
 	}

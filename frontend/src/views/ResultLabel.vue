@@ -1,5 +1,3 @@
-<!-- Lista/Form idk -->
-
 <template>
   <div class="result-label">
 		<ul>
