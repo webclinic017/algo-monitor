@@ -14,7 +14,7 @@
 
 	@Component({})
 	export default class ResultLabel extends Vue {
-		results: any[] = [];
+		private results: any[] = [];
 
 		async created() {
 			const label = this.$route.params.label;

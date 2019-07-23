@@ -56,15 +56,22 @@ def upload():
 def run():
     # TODO: receber params
     json_r = request.get_json()
+    strat_id = json_r['strat_id']
+    params = json_r['params']
 
     id = str(uuid.uuid4())
-    strat_id = json_r['id']
     strat = get_strat(strat_id)
-    create_config(id, strat_id, [{
+    strat_data = {
         'id': id,
+        'strat_id': strat_id,
         'strat': strat.name,
-        'strat_id': strat.id
-    }])
+    }
+
+    config = []
+    for p in params:
+        config.append({**strat_data, **p})
+
+    create_config(id, strat_id, config)
     process = run_strat(id, strat_id)
 
     if process is None: return json.dumps({'status': 'error', 'code': 1}), 404, {'ContentType':'application/json'}

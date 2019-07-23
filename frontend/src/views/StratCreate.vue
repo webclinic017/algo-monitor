@@ -133,10 +133,6 @@
 <style lang="scss" scoped>
 	@import '~jsoneditor/dist/jsoneditor.min.css';
 
-	.form-group {
-		margin-bottom: 20px;
-	}
-
 	.jsoneditor {
 		min-height: 150px;
 	}

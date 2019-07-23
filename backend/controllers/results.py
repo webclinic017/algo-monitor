@@ -13,7 +13,7 @@ results_controller = Blueprint('results_controller', __name__)
 @results_controller.route('/api/results/', defaults={'id': None, 'label': None})
 @results_controller.route('/api/results/id/<id>/', defaults={'label': None})
 @results_controller.route('/api/results/label/<label>/', defaults={'id': None})
-def results(id, label):    
+def results(id, label):
     if id is not None:
         results = get_result(id).toJson()
     else:

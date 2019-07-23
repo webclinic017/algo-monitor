@@ -15,7 +15,7 @@
 
 	@Component({})
 	export default class ResultsList extends Vue {
-		results: any[] = [];
+		private results: any[] = [];
 
 		async created() {
 			this.results = (await axios.get('/api/results')).data;

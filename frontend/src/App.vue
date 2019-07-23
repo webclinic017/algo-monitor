@@ -72,4 +72,14 @@
 		margin: 0;
 		background: white;
 	}
+
+	.form-horizontal {
+		.form-group {
+			margin-bottom: 20px;
+			& > :nth-child(even),
+			& > .col-ml-auto:only-child {
+				padding-left: 20px;
+			}
+		}
+	}
 </style>

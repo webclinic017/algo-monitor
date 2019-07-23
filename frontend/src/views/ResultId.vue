@@ -1,7 +1,7 @@
 <template>
   <div class="result-id">
 	  <div>
-		  {{ result ? result.id : '' }}
+		  {{ result ? result : '' }}
 	  </div>
   </div>
 </template>
@@ -12,7 +12,7 @@
 
 	@Component({})
 	export default class ResultId extends Vue {
-		result: any = null;
+		private result: any = null;
 
 		async created() {
 			const id = this.$route.params.id;
