@@ -59,10 +59,10 @@ def run():
     strat_id = json_r['strat_id']
     params = json_r['params']
 
-    id = str(uuid.uuid4())
+    run_id = str(uuid.uuid4())
     strat = get_strat(strat_id)
     strat_data = {
-        'id': id,
+        'run_id': run_id,
         'strat_id': strat_id,
         'strat': strat.name,
     }
@@ -71,11 +71,11 @@ def run():
     for p in params:
         config.append({**strat_data, **p})
 
-    create_config(id, strat_id, config)
-    process = run_strat(id, strat_id)
+    create_config(run_id, strat_id, config)
+    process = run_strat(run_id, strat_id)
 
     if process is None: return json.dumps({'status': 'error', 'code': 1}), 404, {'ContentType':'application/json'}
 
-    ProcessManager.add(id, strat_id, process)
+    ProcessManager.add(run_id, strat_id, process)
 
-    return json.dumps({'status': 'success', 'id': id, 'strat_id': strat_id}), 200, {'ContentType':'application/json'}
+    return json.dumps({'status': 'success', 'run_id': run_id, 'strat_id': strat_id}), 200, {'ContentType':'application/json'}

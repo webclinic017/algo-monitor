@@ -31,8 +31,8 @@ def save_strat(strat: Strat):
     fs_save(_collection, strat.id, strat.toDict())
     os.remove(temp_path)
 
-def get_strat(id: str):
-    strat_dict = fs_get(_collection, id)
+def get_strat(strat_id: str):
+    strat_dict = fs_get(_collection, strat_id)
     if strat_dict is None: return None
     strat = Strat.fromDict(strat_dict)
     strat_path = f'public/strat_{strat.id}'
@@ -54,30 +54,30 @@ def get_all_strats():
         strats_full.append(get_strat(s))
     return strats
 
-def create_config(id: str, strat_id: str, params: list):
+def create_config(run_id: str, strat_id: str, params: list):
     strat = get_strat(strat_id)
     if strat is None: return None
 
-    config_path = f'public/strat_{strat.id}/config_{id}.json'
+    config_path = f'public/strat_{strat.id}/config_{run_id}.json'
     with open(config_path, 'w') as file:
         file.write(json.dumps(params))
 
     return config_path
 
-def remove_config(id: str, strat_id: str):    
-    config_path = f'public/strat_{strat_id}/config_{id}.json'
+def remove_config(run_id: str, strat_id: str):    
+    config_path = f'public/strat_{strat_id}/config_{run_id}.json'
     if os.path.isfile(config_path):
         os.remove(config_path)
 
-def run_strat(id: str, strat_id: str):
+def run_strat(run_id: str, strat_id: str):
     strat = get_strat(strat_id)
     if strat is None: return None
 
     plat = platform.system()
     if plat == 'Windows':
-        process = Popen(f'python {strat.entry_path} {id}', cwd=f'public/strat_{strat.id}')
+        process = Popen(f'python {strat.entry_path} {run_id}', cwd=f'public/strat_{strat.id}')
     else:
-        process = Popen(['python', strat.entry_path, id], cwd=f'public/strat_{strat.id}')
+        process = Popen(['python', strat.entry_path, run_id], cwd=f'public/strat_{strat.id}')
 
     return process
 

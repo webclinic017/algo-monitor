@@ -10,8 +10,8 @@ _collection = 'results'
 def save_result(result: Result):
     fs_save(_collection, result.id, result.toDict())
 
-def get_result(id: str):
-    result_dict = fs_get(_collection, id)
+def get_result(result_id: str):
+    result_dict = fs_get(_collection, result_id)
     if result_dict is None: return None
     return Result.fromDict(result_dict)
 
@@ -21,7 +21,7 @@ def get_all_results(label: str = None):
         results = [r for r in results if r.label == label]
     return results
 
-def read_local_results(id = None, strat_id = None, label = None):
+def read_local_results(result_id = None, strat_id = None, label = None):
     if strat_id is not None:
         files = list(set(glob.glob(f'public/strat_{strat_id}/result_*.json')))
     else:
@@ -42,8 +42,8 @@ def read_local_results(id = None, strat_id = None, label = None):
         else:
             results_flatten.append(r)
     
-    if id is not None:
-        results_flatten = [r for r in results_flatten if r['id'] == id]
+    if result_id is not None:
+        results_flatten = [r for r in results_flatten if r['id'] == result_id]
 
     if label is not None:
         results_flatten = [r for r in results_flatten if r['label'] == label]
@@ -81,7 +81,7 @@ def delete_local_results(id = None, strat_id = None, label = None):
 
     return files_to_remove
 
-def dump_local_results(strat_id):
+def dump_local_results(strat_id=None):
     results = read_local_results(strat_id=strat_id)
     for r in results: save_result(r)
     delete_local_results(strat_id=strat_id)

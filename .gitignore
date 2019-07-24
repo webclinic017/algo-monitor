@@ -1,9 +1,10 @@
 .DS_Store
 node_modules
 dist
-public
+backend/public
 __pycache__
 *.log
+*.zip
 
 # local env files
 .env.local
