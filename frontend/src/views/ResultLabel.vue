@@ -1,8 +1,9 @@
 <template>
   <div class="result-label">
 		<ul>
-			<li v-for="result in results" v-bind:key="result.id">
-		  		{{ result.id }} | {{ result.label }}
+			<li v-for="result in results" :key="result.id">
+				<router-link :to="{name:'result-id',params:{'id':result.id}}">{{ result.id }}</router-link> |
+				<router-link :to="{name:'result-label',params:{'label':result.label}}">{{ result.label }}</router-link>
 			</li>
 		</ul>
   </div>
