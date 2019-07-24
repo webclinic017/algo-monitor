@@ -4,6 +4,7 @@ import repository.firebase as fb
 fb.init()
 
 from flask import Flask, render_template, send_file, Response, request, send_from_directory
+from werkzeug.routing import BaseConverter
 from controllers.results import results_controller
 from controllers.strat import strat_controller
 
@@ -11,9 +12,15 @@ import psutil
 import datetime
 import json
 
-app = Flask(__name__, static_folder='../frontend/dist')
-
+app = Flask(__name__)#, static_folder='../frontend/dist')
 app.url_map.strict_slashes = False
+
+class RegexConverter(BaseConverter):
+    def __init__(self, url_map, *items):
+        super(RegexConverter, self).__init__(url_map)
+        self.regex = items[0]
+
+app.url_map.converters['regex'] = RegexConverter
 
 app.register_blueprint(results_controller)
 app.register_blueprint(strat_controller)
@@ -32,10 +39,6 @@ def get_processes(search=None):
     status = sorted(status, key=lambda k: k['created_date'], reverse=True)
     return status
 
-@app.route('/')
-def home():
-    return send_from_directory('../frontend/dist', 'index.html')
-
 @app.route('/log/')
 def log():
     with open('status.log', 'r') as file:
@@ -44,11 +47,20 @@ def log():
 @app.route('/monitor/')
 def monitor():
     status = get_processes()
-    return json.dumps(status), 200, {'ContentType':'application/json'} 
+    return json.dumps(status), 200, {'ContentType':'application/json'}
 
-# @app.route('/<path:path>')
-# def statics(path):
-#     return send_from_directory('../frontend/dist', path)
+# Files # e.g. /manifest.json
+
+@app.route('/<regex(".*\..*"):path>')
+def statics(path):
+    return send_from_directory('../frontend/dist', path)
+
+# Front (catch-all) # e.g. /home
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    return send_from_directory('../frontend/dist', 'index.html')
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=80)#debug=True
