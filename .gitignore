@@ -5,6 +5,7 @@ backend/public
 __pycache__
 *.log
 *.zip
+package-lock.json
 
 # local env files
 .env.local

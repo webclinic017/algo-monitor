@@ -75,11 +75,15 @@
 
 	.form-horizontal {
 		.form-group {
-			margin-bottom: 20px;
+			margin-bottom: 20px !important;
 			& > :nth-child(even),
 			& > .col-ml-auto:only-child {
 				padding-left: 20px;
 			}
 		}
+	}
+
+	.json-editor {
+		min-height: 150px;
 	}
 </style>

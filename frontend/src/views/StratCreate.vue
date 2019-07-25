@@ -22,7 +22,7 @@
 					<label for="stratParams" class="form-label">Parâmetros</label>
 				</div>
 				<div class="col-8 col-sm-12">
-					<div id="stratParams" class="jsoneditor"></div>
+					<div id="stratParams" class="json-editor"></div>
 				</div>
 			</div>
 			<div class="form-group">
@@ -132,10 +132,6 @@
 
 <style lang="scss" scoped>
 	@import '~jsoneditor/dist/jsoneditor.min.css';
-
-	.jsoneditor {
-		min-height: 150px;
-	}
 
 	#fileName {
 		vertical-align: middle;
