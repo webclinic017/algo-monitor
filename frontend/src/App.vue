@@ -17,7 +17,9 @@
 <script lang="ts">
 	import { Component, Vue } from 'vue-property-decorator';
 	import Sidebar from '@/components/layout/Sidebar.vue';
-
+	import Toasted from 'vue-toasted';
+	
+	Vue.use(Toasted);
 	@Component({
 		components: {
 			Sidebar
@@ -84,6 +86,13 @@
 	}
 
 	.json-editor {
-		min-height: 150px;
+		.jsoneditor {
+			min-height: 150px;
+			border: thin solid #252525;
+			.jsoneditor-menu {
+				background-color: #252525;
+				border-bottom: 1px solid #252525;
+			}
+		}
 	}
 </style>

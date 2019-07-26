@@ -1,8 +1,8 @@
 <template>
   <div class="json-editor-group">
         <div class="columns json-editor-container" v-for="editor in editors" v-bind:key="editor">
-            <JsonEditor class="col-10" :jsonParams="jsonParams" @jsonUpdate="updateJsons(editor, ...arguments)"/>
-            <a href="#" role="button" class="btn btn-primary btn-action btn-lg col-2 col-mx-auto" @click="removeEditor(editor)"><i class="icon icon-minus"></i></a>
+            <JsonEditor class="col-10" :jsonParams="jsonParams" :readOnly="false" @jsonUpdate="updateJsons(editor, ...arguments)"/>
+            <a href="#" role="button" class="btn btn-primary btn-action btn-lg col-2 col-mx-auto" @click="removeEditor(editor)" v-if="editors.length > 1"><i class="icon icon-minus"></i></a>
         </div>
         <div class="columns">
             <div class="col-10"></div>

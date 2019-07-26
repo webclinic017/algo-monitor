@@ -1,16 +1,21 @@
 <template>
   <div class="result-id">
-	  <div>
-		  {{ result ? result : '' }}
-	  </div>
+		<div>
+			<JsonEditor :jsonParams="result ? result : '{}'" :readOnly="true"/>
+		</div>
   </div>
 </template>
 
 <script lang="ts">
 	import { Component, Vue } from 'vue-property-decorator';
 	import axios from 'axios'
+	import JsonEditor from '@/components/JsonEditor.vue';
 
-	@Component({})
+	@Component({
+		components: {
+			JsonEditor
+		}
+	})
 	export default class ResultId extends Vue {
 		private result: any = null;
 

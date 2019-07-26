@@ -9,7 +9,8 @@
 	
 	@Component({})
 	export default class JsonEditor extends Vue {
-        @Prop() jsonParams!: any;
+		@Prop() jsonParams!: any;
+		@Prop() readOnly!: any;
 		editor!: any;
 
 		mounted() {
@@ -46,7 +47,10 @@
                     let json = this.editor.get();
                     let valid = this.editor.validateSchema(json);
                     this.$emit('jsonUpdate', json, valid);
-                }
+                },
+				'onEditable': fieldData => {
+					return !this.readOnly;
+				}
 			};
 			this.editor = new JSONEditor(container, options, jsonParams);
 			

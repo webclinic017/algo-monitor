@@ -15,10 +15,18 @@
 			</div>
 			<div v-show="selectedId" class="form-group">
 				<div class="col-4 col-sm-12">
+					<label for="stratLabel" class="form-label">Label</label>
+				</div>
+				<div class="col-8 col-sm-12">
+					<input id="stratLabel" name="stratLabel" type="text" v-model="stratLabel">
+				</div>
+			</div>
+			<div v-show="selectedId" class="form-group">
+				<div class="col-4 col-sm-12">
 					<label class="form-label">Parâmetros</label>
 				</div>
 				<div class="col-8 col-sm-12">
-					<JsonEditorGroup :jsonParams="stratParams" @jsonsUpdate="updateJsons"/>
+					<JsonEditorGroup :jsonParams="stratParams" :readOnly="false" @jsonsUpdate="updateJsons"/>
 				</div>
 			</div>
 			<div v-show="selectedId" class="form-group">
@@ -35,7 +43,7 @@
 	import axios from 'axios';
 	import BetterCast from '../helpers/betterCast';
 	import JsonEditorGroup from '../components/JsonEditorGroup.vue';
-	
+
 	@Component({
 		components: {
 			JsonEditorGroup
@@ -45,6 +53,7 @@
 		private strats: any[] = []
 		private selectedId: any = null;
 		private selectedStrat: any = null;
+		private stratLabel: any = '';
 
 		private stratParams: any = {};
 		private jsons: any[] = [];
@@ -68,9 +77,15 @@
 			if (isValidParams) {
 				let data = {
 					'strat_id': this.selectedId,
+					'label': this.stratLabel,
 					'params': stratParamsValues
 				};
 				let status = (await axios.post('/api/strat/run', data)).data;
+				this.$toasted.show('Estratégia iniciada!').goAway(2000)
+				this.$router.push({ name: 'results' })
+			}
+			else {
+				this.$toasted.show('Estratégia inválida!').goAway(2000)
 			}
 		}
 	}

@@ -102,7 +102,7 @@
 			this.fileName = this.getInputFileName(fileInput);
 		}
 
-		onSubmit() {
+		async onSubmit() {
 			let formData = new FormData();
 			let stratName = (<HTMLInputElement>document.querySelector('#stratName'));
 			let entryPath = (<HTMLInputElement>document.querySelector('#entryPath'));
@@ -117,14 +117,16 @@
 				formData.append('entry_path', entryPath.value)
 				formData.append('params', JSON.stringify(stratParams));
 				formData.append('file', file!.files![0]);
-				axios.post('/api/strat/upload', formData, {
+				await axios.post('/api/strat/upload', formData, {
 					headers: {
 						'Content-Type': 'multipart/form-data'
 					}
 				});
+				this.$toasted.show('Estratégia criada!').goAway(2000)
+				this.$router.push({ name: 'strat-run' })
 			}
 			else {
-				alert("Dados inválidos!");
+				this.$toasted.show('Estratégia inválida!').goAway(2000)
 			}
 		}
 	}

@@ -4,15 +4,13 @@ from flask import Blueprint, request
 import json
 from models.process_manager import ProcessManager
 from models.strat import Strat
-from services.strats import save_strat, get_strat, run_strat, upload_strat, start_status_check, create_config, get_strats_list
+from services.strats import save_strat, get_strat, run_strat, upload_strat, create_config, get_strats_list
 from werkzeug import secure_filename
 import uuid
 
 strat_controller = Blueprint('strat_controller', __name__)
 
 ALLOWED_EXTENSIONS = ['zip']
-
-status_job = start_status_check(10)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -54,9 +52,9 @@ def upload():
 
 @strat_controller.route('/api/strat/run/', methods=['POST'])
 def run():
-    # TODO: receber params
     json_r = request.get_json()
     strat_id = json_r['strat_id']
+    label = json_r['label']
     params = json_r['params']
 
     run_id = str(uuid.uuid4())
@@ -65,6 +63,7 @@ def run():
         'run_id': run_id,
         'strat_id': strat_id,
         'strat': strat.name,
+        'label': label
     }
 
     config = []

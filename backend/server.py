@@ -8,6 +8,8 @@ from werkzeug.routing import BaseConverter
 from controllers.results import results_controller
 from controllers.strat import strat_controller
 
+from services.strats import start_status_check
+
 import psutil
 import datetime
 import json
@@ -25,6 +27,8 @@ app.url_map.converters['regex'] = RegexConverter
 app.register_blueprint(results_controller)
 app.register_blueprint(strat_controller)
 
+status_job = start_status_check(10)
+
 def get_processes(search=None):
     status = []
     pids = psutil.pids()
@@ -39,12 +43,12 @@ def get_processes(search=None):
     status = sorted(status, key=lambda k: k['created_date'], reverse=True)
     return status
 
-@app.route('/log/')
+@app.route('/api/log/')
 def log():
     with open('status.log', 'r') as file:
         return f'<pre>{file.read()}</pre>'
 
-@app.route('/monitor/')
+@app.route('/api/monitor/')
 def monitor():
     status = get_processes()
     return json.dumps(status), 200, {'ContentType':'application/json'}
