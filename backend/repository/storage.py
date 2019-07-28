@@ -11,3 +11,7 @@ def download(blob_name: str, path: str):
     blob = _bucket.blob(blob_name)
     mkdir_conditional('public')
     blob.download_to_filename(path)
+
+def delete(blob_name: str):
+    blob = _bucket.blob(blob_name)
+    blob.delete()

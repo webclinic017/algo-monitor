@@ -28,3 +28,9 @@ class Interval:
             self.running = False
             # stop the thread when needed
             self.f_stop.set()
+
+# try:
+#     start_thread()  
+# except (KeyboardInterrupt, SystemExit):
+#     cleanup_stop_thread()
+#     sys.exit()

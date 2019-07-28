@@ -1,5 +1,5 @@
 from models.result import Result
-from repository.firestore import save as fs_save, get as fs_get, get_all as fs_get_all
+from repository.firestore import save as fs_save, get as fs_get, get_all as fs_get_all, delete as fs_delete, delete_all as fs_delete_all
 import os
 import glob
 import json
@@ -18,8 +18,14 @@ def get_result(result_id: str):
 def get_all_results(label: str = None):
     results = Result.fromListDict(fs_get_all(_collection))
     if label is not None:
-        results = [r for r in results if r.label == label]
+        results = [r for r in results if r.config['label'] == label]
     return results
+
+def delete_result(result_id: str):
+    fs_delete(_collection, result_id)
+
+def delete_all_results(label):
+    fs_delete_all(_collection, lambda x, label=label: x['config']['label'] == label)
 
 def read_local_results(result_id = None, strat_id = None, label = None):
     if strat_id is not None:
@@ -48,7 +54,7 @@ def read_local_results(result_id = None, strat_id = None, label = None):
     if label is not None:
         results_flatten = [r for r in results_flatten if r['label'] == label]
         
-    results_list = Result.fromListDict(results_flatten)
+    results_list = Result.fromListDict(results_flatten) # TODO: result errado trava aqui, e processo continua ativo na tela, além de travar a fila
     
     return results_list
 

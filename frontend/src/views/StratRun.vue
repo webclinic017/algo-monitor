@@ -1,6 +1,14 @@
 <template>
-  <div class="strat-run">
-		<form class="form-horizontal">
+	<div class="strat-run" :class="{ 'is-empty': strats.length == 0 }" v-if="strats">
+		<EmptyCard v-if="strats.length == 0">
+			<template v-slot:title>
+				Nenhuma estratégia foi encontrada
+			</template>
+			<template v-slot:description>
+				Tente <router-link :to="{name:'strat-create'}">criar</router-link> uma nova estratégia.
+			</template>
+		</EmptyCard>
+		<form class="form-horizontal" v-if="strats.length > 0">
 			<div class="form-group">
 				<div class="col-4 col-sm-12">
 					<label for="stratSelect" class="form-label">Estratégia</label>
@@ -35,22 +43,25 @@
 				</div>
 			</div>
 		</form>
-  </div>
+	</div>
+	<div class="loading loading-xlg" v-else></div>
 </template>
 
 <script lang="ts">
 	import { Component, Vue } from 'vue-property-decorator';
-	import axios from 'axios';
+    import EmptyCard from '@/components/EmptyCard.vue';
 	import BetterCast from '../helpers/betterCast';
-	import JsonEditorGroup from '../components/JsonEditorGroup.vue';
+	import JsonEditorGroup from '@/components/JsonEditorGroup.vue';
+	import axios from 'axios';
 
 	@Component({
 		components: {
+            EmptyCard,
 			JsonEditorGroup
 		}
 	})
 	export default class StratRun extends Vue {
-		private strats: any[] = []
+		private strats: any[] | null = null
 		private selectedId: any = null;
 		private selectedStrat: any = null;
 		private stratLabel: any = '';
@@ -63,7 +74,7 @@
 		}
 
 		onStratSelect() {
-			this.selectedStrat = this.strats.reduce((r,e) => e.id == this.selectedId ? e : r, null);
+			this.selectedStrat = this.strats!.reduce((r,e) => e.id == this.selectedId ? e : r, null);
 			this.stratParams = this.selectedStrat.params;
 		}
 
@@ -82,7 +93,7 @@
 				};
 				let status = (await axios.post('/api/strat/run', data)).data;
 				this.$toasted.show('Estratégia iniciada!').goAway(2000)
-				this.$router.push({ name: 'results' })
+				this.$router.push({ name: 'process' })
 			}
 			else {
 				this.$toasted.show('Estratégia inválida!').goAway(2000)

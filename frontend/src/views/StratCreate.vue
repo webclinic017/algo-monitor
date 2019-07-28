@@ -123,7 +123,7 @@
 					}
 				});
 				this.$toasted.show('Estratégia criada!').goAway(2000)
-				this.$router.push({ name: 'strat-run' })
+				this.$router.push({ name: 'process' })
 			}
 			else {
 				this.$toasted.show('Estratégia inválida!').goAway(2000)

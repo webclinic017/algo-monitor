@@ -4,9 +4,10 @@ from flask import Blueprint, request
 import json
 from models.process_manager import ProcessManager
 from models.strat import Strat
-from services.strats import save_strat, get_strat, run_strat, upload_strat, create_config, get_strats_list
+from services.strats import post_strat, get_strat, run_strat, save_strat, create_config, get_strats_list, save_post_strat, delete_strat
 from werkzeug import secure_filename
 import uuid
+from threading import Thread
 
 strat_controller = Blueprint('strat_controller', __name__)
 
@@ -36,19 +37,39 @@ def upload():
         return json.dumps({'status': 'error', 'code': 3}), 400, {'ContentType':'application/json'}
         
     filename = secure_filename(file.filename)
-    id = str(uuid.uuid4())
+    strat_id = str(uuid.uuid4())
     name = request.form['strat_name']
     entry_path = request.form['entry_path']
     params = json.loads(request.form['params'])
     
-    strat = Strat(id,name,params,entry_path)
-    success = upload_strat(file.read(), strat)
+    strat = Strat(strat_id,name,params,entry_path)
 
-    if not success: 
-        return json.dumps({'status': 'error', 'code': 4}), 400, {'ContentType':'application/json'}
+    thread = Thread(target=save_post_strat,args=(file.read(), strat))
+    thread.setName(f'{strat.name} : {strat.id}')
+    ProcessManager.uploading_list_add(thread)
+    thread.start()
 
-    save_strat(strat)    
-    return json.dumps({'status': 'success', 'id': id}), 200, {'ContentType':'application/json'}
+    # success = save_strat(file.read(), strat)
+    # if not success: 
+    #     return json.dumps({'status': 'error', 'code': 4}), 400, {'ContentType':'application/json'}
+    # post_strat(strat)
+
+    return json.dumps({'status': 'success', 'strat_id': strat_id}), 200, {'ContentType':'application/json'}
+
+@strat_controller.route('/api/strat/get-upload-queue/')
+def get_upload_queue():
+    process_list = ProcessManager.uploading_list_get_all()
+    return json.dumps(process_list), 200, {'ContentType':'application/json'}
+
+@strat_controller.route('/api/strat/remove-upload-queue/', methods=['POST'])
+def remove_upload_queue():
+    json_r = request.get_json()
+    strat_process_id = json_r['strat_process_id']
+    removed = ProcessManager.uploading_list_remove(strat_process_id)
+
+    if len(removed) == 0: return json.dumps({'status': 'error', 'code': 1}), 404, {'ContentType':'application/json'}
+
+    return json.dumps({'status': 'success', 'removed': removed}), 200, {'ContentType':'application/json'}
 
 @strat_controller.route('/api/strat/run/', methods=['POST'])
 def run():
@@ -71,10 +92,20 @@ def run():
         config.append({**strat_data, **p})
 
     create_config(run_id, strat_id, config)
-    process = run_strat(run_id, strat_id)
-
-    if process is None: return json.dumps({'status': 'error', 'code': 1}), 404, {'ContentType':'application/json'}
-
-    ProcessManager.add(run_id, strat_id, process)
+    ProcessManager.add(run_id, strat_id)
 
     return json.dumps({'status': 'success', 'run_id': run_id, 'strat_id': strat_id}), 200, {'ContentType':'application/json'}
+
+@strat_controller.route('/api/strat/queue/')
+def get_queue():
+    return ProcessManager.get_json_queue(), 200, {'ContentType':'application/json'}
+
+@strat_controller.route('/api/strat/delete/', methods=['POST'])
+def strat_delete():
+    json_r = request.get_json()
+    strat_id = json_r['strat_id']
+    success = delete_strat(strat_id)
+
+    if not success: return json.dumps({'status': 'error', 'code': 1}), 200, {'ContentType':'application/json'}
+
+    return json.dumps({'status': 'success', 'strat_id': strat_id}), 200, {'ContentType':'application/json'}

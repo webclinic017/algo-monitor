@@ -1,5 +1,5 @@
 <template>
-  <div ref="editor" class="json-editor"></div>
+  	<div ref="editor" class="json-editor"></div>
 </template>
 
 <script lang="ts">

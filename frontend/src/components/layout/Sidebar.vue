@@ -13,13 +13,19 @@
                 <router-link :to="{name:'results'}" exact>Resultados</router-link>
             </li>
             <li class="nav-item">
-                <a href="#">Estratégias</a>
+                <router-link :to="{name:'process'}" exact>Processos</router-link>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="disable-events">Estratégias</a>
                 <ul class="nav">
                     <li class="nav-item">
-                        <router-link :to="{name:'strat-run'}" exact>Rodar</router-link>
+                        <router-link :to="{name:'strat-run'}" exact>Executar</router-link>
                     </li>
                     <li class="nav-item">
                         <router-link :to="{name:'strat-create'}" exact>Criar</router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link :to="{name:'strat-list'}" exact>Listar</router-link>
                     </li>
                 </ul>
             </li>

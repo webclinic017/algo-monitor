@@ -6,6 +6,8 @@ import ResultLabel from './views/ResultLabel.vue'
 import ResultsList from './views/ResultsList.vue'
 import StratRun from './views/StratRun.vue'
 import StratCreate from './views/StratCreate.vue'
+import ProcessStatus from './views/ProcessStatus.vue'
+import StratList from './views/StratList.vue'
 
 Vue.use(Router)
 
@@ -46,10 +48,18 @@ export default new Router({
       component: ResultsList
     },
     {
+      path: '/process',
+      name: 'process',
+      meta: {
+        title: 'Processos'
+      },
+      component: ProcessStatus
+    },
+    {
       path: '/strat/run',
       name: 'strat-run',
       meta: {
-        title: 'Rodar Estratégia'
+        title: 'Executar Estratégia'
       },
       component: StratRun
     },
@@ -60,6 +70,14 @@ export default new Router({
         title: 'Criar Estratégia'
       },
       component: StratCreate
+    },
+    {
+      path: '/strat/list',
+      name: 'strat-list',
+      meta: {
+        title: 'Listar Estratégias'
+      },
+      component: StratList
     }
     // {
     //   path: '/about',

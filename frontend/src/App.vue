@@ -33,51 +33,82 @@
 	@import '~spectre.css/dist/spectre.min.css';
 	@import '~spectre.css/dist/spectre-icons.min.css';
 	@import '~spectre.css/dist/spectre-exp.min.css';
+	@import '~vue-good-table/dist/vue-good-table.css';
 
 	body {
 		font-family: 'Roboto', sans-serif;
 	}
 
-	.off-canvas-toggle {
-		left: 15px !important;
-		top: 20px !important;
+	.subtitle {
+		color: #707070;
 	}
 
-    .off-canvas-sidebar {
-        padding: 20px 1rem;
-        height: 100vh;
-        overflow-y: auto;
-    }
+	.off-canvas {
+		.off-canvas-sidebar {
+			padding: 20px 1rem;
+			height: 100vh;
+			overflow-y: auto;
+		}
 
-	.off-canvas-content {
-		padding: 0 !important;
-	}
+		.off-canvas-content {
+			padding: 0 !important;
+			overflow-x: hidden;
 
-	.container-content {		
-		flex: 1 1 auto;
-		padding: 0 4rem;
-		// width: calc(100vw - 12rem);
-		height: 100vh;
-		overflow-y: auto;
+			.container-content {		
+				flex: 1 1 auto;
+				padding: 0 60px 60px;
+				height: 100vh;
+				overflow-y: auto;
 
-		@media (max-width: 960px) {
-    		padding: 0 50px;
+				@media (max-width: 960px) {
+					padding: 0 50px 50px;
+				}
+
+				.container {
+					min-height: 100%;
+					display: flex;
+					flex-direction: column;
+
+					&>div.is-empty:only-of-type,
+					&>div.loading:only-of-type {
+						flex: 1;
+						display: flex;
+						flex-direction: column;
+						justify-content: space-around;
+						margin-bottom: 5%;
+					}
+					
+					.off-canvas-toggle {
+						left: 15px !important;
+						top: 20px !important;
+					}
+
+					.s-title {
+						position: sticky;
+						position: -webkit-sticky;
+						top: 0;
+						z-index: 99;
+						padding: 20px 0;
+						margin: 0;
+						background: white;
+					}
+				}
+			}
 		}
 	}
 
-	.s-title {
-		position: sticky;
-		position: -webkit-sticky;
-		top: 0;
-		z-index: 99;
-		padding: 20px 0;
-		margin: 0;
-		background: white;
+	.empty {
+		background: transparent !important;
 	}
 
 	.form-horizontal {
+		&:last-child {
+			padding: 0;
+		}
 		.form-group {
-			margin-bottom: 20px !important;
+			&:not(:last-child) {
+				margin-bottom: 20px !important;
+			}
 			& > :nth-child(even),
 			& > .col-ml-auto:only-child {
 				padding-left: 20px;
@@ -88,11 +119,40 @@
 	.json-editor {
 		.jsoneditor {
 			min-height: 150px;
-			border: thin solid #252525;
+			border: thin solid #303030;
 			.jsoneditor-menu {
-				background-color: #252525;
-				border-bottom: 1px solid #252525;
+				background-color: #303030;
+				border-bottom: 1px solid #303030;
 			}
 		}
+	}
+
+	.vgt-table {
+		thead {
+			user-select: none;
+			cursor: pointer;
+		}
+	}
+
+
+	.jsoneditor-contextmenu ul li button {
+		color: #f5f5f5 !important;
+		&:hover {
+			color: #1a1a1a !important;
+		}
+	}
+
+	.loading.loading-xlg {
+		min-height: 100px;
+		&::after {
+			height: 80px;
+			margin-left: -40px;
+			margin-top: -40px;
+			width: 80px;
+		}
+	}
+
+	.disable-events {
+		pointer-events: none;
 	}
 </style>
