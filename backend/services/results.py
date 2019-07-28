@@ -27,7 +27,7 @@ def delete_result(result_id: str):
 def delete_all_results(label):
     fs_delete_all(_collection, lambda x, label=label: x['config']['label'] == label)
 
-def read_local_results(result_id = None, strat_id = None, label = None):
+def read_local_results(run_id = None, result_id = None, strat_id = None, label = None):
     if strat_id is not None:
         files = list(set(glob.glob(f'public/strat_{strat_id}/result_*.json')))
     else:
@@ -48,17 +48,20 @@ def read_local_results(result_id = None, strat_id = None, label = None):
         else:
             results_flatten.append(r)
     
+    if run_id is not None:
+        results_flatten = [r for r in results_flatten if r['config']['run_id'] == run_id]
+
     if result_id is not None:
         results_flatten = [r for r in results_flatten if r['id'] == result_id]
 
     if label is not None:
-        results_flatten = [r for r in results_flatten if r['label'] == label]
-        
+        results_flatten = [r for r in results_flatten if r['config']['label'] == label]
+    
     results_list = Result.fromListDict(results_flatten) # TODO: result errado trava aqui, e processo continua ativo na tela, além de travar a fila
     
     return results_list
 
-def delete_local_results(id = None, strat_id = None, label = None):
+def delete_local_results(run_id = None, result_id = None, strat_id = None, label = None):
     files_to_remove = []
     if strat_id is not None:
         files_to_remove = list(set(glob.glob(f'public/strat_{strat_id}/result_*.json')))
@@ -68,7 +71,7 @@ def delete_local_results(id = None, strat_id = None, label = None):
                 if not is_json(txt):
                     files_to_remove.remove(f)
 
-    elif id is not None or label is not None:
+    elif run_id is not None or result_id is not None or label is not None:
         files_to_remove = list(set(glob.glob(f'public/**/result_*.json')))
         for f in files_to_remove[:]:
             with open(f, 'r') as file:
@@ -79,7 +82,7 @@ def delete_local_results(id = None, strat_id = None, label = None):
                     continue
 
                 result = Result.fromJson(txt)
-                if (label is not None and result.label != label) or (id is not None and result.id != id):
+                if (run_id is not None and result.config['run_id'] != run_id) or (result_id is not None and result.id != result_id) or (label is not None and result.config['label'] != label):
                     files_to_remove.remove(f)
                     
     for f in files_to_remove:
@@ -87,7 +90,10 @@ def delete_local_results(id = None, strat_id = None, label = None):
 
     return files_to_remove
 
-def dump_local_results(strat_id=None):
-    results = read_local_results(strat_id=strat_id)
-    for r in results: save_result(r)
-    delete_local_results(strat_id=strat_id)
+def dump_local_results(run_id):
+    try:
+        results = read_local_results(run_id=run_id)
+        for r in results: save_result(r)
+        delete_local_results(run_id=run_id)
+    except TypeError:
+        delete_local_results(run_id=run_id)

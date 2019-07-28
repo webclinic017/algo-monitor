@@ -100,7 +100,7 @@
                     //         console.log(error.response);
                     //     }
                     // });
-                this.stratProcessList = this.stratProcessList.filter(e => e.name != name);
+                this.stratProcessList = this.stratProcessList!.filter(e => e.name != name);
 				this.$toasted.show('Registro excluído!').goAway(2000);
             } catch (error) {
                 // console.error(error);

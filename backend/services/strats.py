@@ -136,7 +136,7 @@ def status_check():
                 process = run_strat(p['run_id'], p['strat_id'])
                 ProcessManager.add_process(p['run_id'], process)
         else:
-            dump_local_results(p['strat_id'])
+            dump_local_results(p['run_id'])
             if not run_status(p['process']):
                 ProcessManager.remove(p['run_id'])
                 remove_config(p['run_id'], p['strat_id'])

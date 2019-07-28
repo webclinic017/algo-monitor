@@ -45,7 +45,7 @@
 			try {
 				let success = (await axios.post('/api/strat/delete/', {strat_id: strat_id})).data;
 				this.$toasted.show('Estratégia excluída!').goAway(2000);
-				this.strats = this.strats.filter(e => e.id != strat_id);
+				this.strats = this.strats!.filter(e => e.id != strat_id);
 			}
 			catch (error) {
 				this.$toasted.show('Erro ao excluir estratégia!', {

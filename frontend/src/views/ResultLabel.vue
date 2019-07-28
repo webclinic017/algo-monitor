@@ -30,7 +30,7 @@
 		}
 	})
 	export default class ResultLabel extends Vue {
-		private label: string = null;
+		private label: string | null = null;
 		private results: any[] | null = null;
 		private sorts: any[] = [];
 		private chartRecords: any[] = [];
