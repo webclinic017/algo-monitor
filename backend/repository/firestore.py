@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from firebase_admin import firestore
 
 _db = firestore.client()

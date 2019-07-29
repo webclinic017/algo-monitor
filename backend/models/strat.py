@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from models.base_class import BaseClass
 
 class Strat(BaseClass):

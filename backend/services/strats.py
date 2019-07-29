@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from models.strat import Strat
 from repository.firestore import save as fs_save, get as fs_get, get_all as fs_get_all, delete as fs_delete
 from repository.storage import upload as st_upload, download as st_download, delete as st_delete
@@ -136,7 +138,7 @@ def status_check():
                 process = run_strat(p['run_id'], p['strat_id'])
                 ProcessManager.add_process(p['run_id'], process)
         else:
-            dump_local_results(p['run_id'])
+            dump_local_results(p['run_id'],p['strat_id'])
             if not run_status(p['process']):
                 ProcessManager.remove(p['run_id'])
                 remove_config(p['run_id'], p['strat_id'])

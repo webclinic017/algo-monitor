@@ -53,7 +53,7 @@
 
         async created() {
             await this.getQueues();
-            this.calcInterval = setInterval(async () => this.getQueues(), 10000);
+            this.calcInterval = setInterval(async () => this.getQueues(), 5000);
         }
 
         async getQueues() {

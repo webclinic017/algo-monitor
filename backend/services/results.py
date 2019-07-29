@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from models.result import Result
 from repository.firestore import save as fs_save, get as fs_get, get_all as fs_get_all, delete as fs_delete, delete_all as fs_delete_all
 import os
@@ -18,14 +20,14 @@ def get_result(result_id: str):
 def get_all_results(label: str = None):
     results = Result.fromListDict(fs_get_all(_collection))
     if label is not None:
-        results = [r for r in results if r.config['label'] == label]
+        results = [r for r in results if r.config[0]['label'] == label]
     return results
 
 def delete_result(result_id: str):
     fs_delete(_collection, result_id)
 
 def delete_all_results(label):
-    fs_delete_all(_collection, lambda x, label=label: x['config']['label'] == label)
+    fs_delete_all(_collection, lambda x, label=label: x['config'][0]['label'] == label)
 
 def read_local_results(run_id = None, result_id = None, strat_id = None, label = None):
     if strat_id is not None:
@@ -49,13 +51,13 @@ def read_local_results(run_id = None, result_id = None, strat_id = None, label =
             results_flatten.append(r)
     
     if run_id is not None:
-        results_flatten = [r for r in results_flatten if r['config']['run_id'] == run_id]
+        results_flatten = [r for r in results_flatten if r['config'][0]['run_id'] == run_id]
 
     if result_id is not None:
         results_flatten = [r for r in results_flatten if r['id'] == result_id]
 
     if label is not None:
-        results_flatten = [r for r in results_flatten if r['config']['label'] == label]
+        results_flatten = [r for r in results_flatten if r['config'][0]['label'] == label]
     
     results_list = Result.fromListDict(results_flatten) # TODO: result errado trava aqui, e processo continua ativo na tela, além de travar a fila
     
@@ -82,7 +84,7 @@ def delete_local_results(run_id = None, result_id = None, strat_id = None, label
                     continue
 
                 result = Result.fromJson(txt)
-                if (run_id is not None and result.config['run_id'] != run_id) or (result_id is not None and result.id != result_id) or (label is not None and result.config['label'] != label):
+                if (run_id is not None and result.config[0]['run_id'] != run_id) or (result_id is not None and result.id != result_id) or (label is not None and result.config[0]['label'] != label):
                     files_to_remove.remove(f)
                     
     for f in files_to_remove:
@@ -90,10 +92,11 @@ def delete_local_results(run_id = None, result_id = None, strat_id = None, label
 
     return files_to_remove
 
-def dump_local_results(run_id):
+def dump_local_results(run_id,strat_id):
     try:
         results = read_local_results(run_id=run_id)
         for r in results: save_result(r)
         delete_local_results(run_id=run_id)
-    except TypeError:
-        delete_local_results(run_id=run_id)
+    except (TypeError, KeyError):
+        delete_local_results(strat_id=strat_id)
+        print(f'---------- INVALID RESULT (run: {run_id}) (strat: {strat_id}) ----------')

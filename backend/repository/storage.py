@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from firebase_admin import storage
 from helpers.helpers import mkdir_conditional
 

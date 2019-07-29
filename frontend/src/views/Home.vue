@@ -57,20 +57,20 @@
 				Exemplo de esquema:
 <pre>
 {
-  "param1": "parametro exemplo",	-> string
-  "param2": 123,			-> number
-  "param3": [1,2,3],			-> list : number (número de elementos não é considerado)
-  "param4": {				-> dictionary
-    "param4_child1": "filho1"		-> dictionary property | string
-    "param4_child2": 999,		-> dictionary property | number
-    "param4_child3": ["a","b"],		-> dictionary property | list : string
-    "param4_child4": {			-> dictionary property | dictionary
-      "param4_child4_gchild1": "neto1"	-> dictionary property | dictionary property | string
+  "param1": "parametro exemplo",	# string
+  "param2": 123,			# number
+  "param3": [1,2,3],			# list : number (número de elementos não é considerado)
+  "param4": {				# dictionary
+    "param4_child1": "filho1"		# dictionary property | string
+    "param4_child2": 999,		# dictionary property | number
+    "param4_child3": ["a","b"],		# dictionary property | list : string
+    "param4_child4": {			# dictionary property | dictionary
+      "param4_child4_gchild1": "neto1"	# dictionary property | dictionary property | string
     }
   },
-  "param5": [				-> list : dict
+  "param5": [				# list : dict
     {
-      "param5_child1": 1		-> list element (NÃO tipado, lista de dicts aceita quaisquer propriedades)
+      "param5_child1": 1		# list element (NÃO tipado, lista de dicts aceita quaisquer propriedades)
     },
     {
       "param5_child2": 2
@@ -104,6 +104,48 @@
 			<dt>Arquivo (zip) da Estratégia</dt>
 			<dd>Todos arquivos utilizados pelo algoritmo, zipados em um único arquivo.</dd>
 		</dl>
+
+		<br>
+		<h5>
+			Template de Código
+		</h5>
+		<p>
+			Para utilizar os parâmetros enviados para o algoritmo durante sua execução, o código cadastrado deve carregar-los da seguinte maneira:
+		</p>
+<pre>
+import json
+import sys
+
+config_id = sys.argv[1]
+with open(f'config_{config_id}.json') as file:
+	config_list = json.loads(file.read())
+	# config_list representa uma lista composta por N conjuntos de parâmetros,
+	# em que cada um dos conjuntos segue o esquema definido no cadastro do algoritmo
+</pre>
+		<p>
+			Já para salvar os resultados do algoritmo, o seguinte processo deve ser utilizado:
+		</p>
+<pre>
+import uuid
+import json
+
+result_id = str(uuid.uuid4())
+with open(f'result_{result_id}.json', 'w') as file:
+	result = {
+		"id": result_id,			# id do resultado
+		"config": config_list,			# configurações utilizadas pelo algoritmo
+		"result": {				# resultados do algoritmo, composto por "real", "pred" e "metrics"
+			"real": [1,2,3],		# array com os valores reais (Ex.: para um algoritmo que prevê a abertura do dia seguinte, na lista pode constar o preço real da abertura, para comparação)
+			"pred": [4,5,6],		# array com os valores da previsão
+			"metrics": {			# campo livre para salvar as métricas do algoritmo (Ex. MAE, MAPE, Accuracy...)
+				"param1": 1,
+				"param2": "2",
+				"param3": [3],
+			}
+		}
+	}
+	file.write(json.dumps(result))
+</pre>
 
 		<br>
 		<h4 class="subtitle">
@@ -161,3 +203,9 @@
 	@Component({})
 	export default class Home extends Vue { }
 </script>
+
+<style lang="scss" scoped>
+	pre {
+		white-space: pre-wrap;
+	}
+</style>

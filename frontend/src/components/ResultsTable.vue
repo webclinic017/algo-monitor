@@ -81,11 +81,14 @@
             
             let idConfig = _.find(this.columns, { 'field': 'id' });
             if (idConfig) idConfig.html = true;
-            let labelConfig = _.find(this.columns, { 'field': 'config.label' });
-            if (labelConfig) labelConfig.html = true;
+            for (let j in this.rows[0]['config']) {
+                let labelConfig = _.find(this.columns, { 'field': `config.${j}.label` });
+                if (labelConfig) labelConfig.html = true;
+            }
             for (let i in this.rows) {
                 this.rows[i]['id'] = `<a href="/result/id/${this.rows[i]['id']}">${this.rows[i]['id']}</a>`
-                this.rows[i]['config']['label'] = `<a href="/result/label/${this.rows[i]['config']['label']}">${this.rows[i]['config']['label']}</a>`
+                for (let j in this.rows[i]['config'])
+                    this.rows[i]['config'][j]['label'] = `<a href="/result/label/${this.rows[i]['config'][j]['label']}">${this.rows[i]['config'][j]['label']}</a>`
             }
         }
 
