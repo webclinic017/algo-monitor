@@ -69,7 +69,11 @@ def get_strat(strat_id: str):
 def setup_strat_env(strat_path):
     os.system(f'virtualenv {strat_path} --no-site-packages')
     if os.path.isfile(f'{strat_path}/requirements.txt'):
-        os.system(f'cd {strat_path} && Scripts\\pip install -r requirements.txt')
+        plat = platform.system()
+        if plat == 'Windows':
+            os.system(f'cd {strat_path} && Scripts\\pip install -r requirements.txt')
+        else:
+            os.system(f'cd {strat_path} && Scripts\\\\pip install -r requirements.txt')
 
 def delete_strat(strat_id: str):
     can_delete = len([x for x in ProcessManager.process_list if x['strat_id'] == strat_id]) == 0
