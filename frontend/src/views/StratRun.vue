@@ -26,7 +26,7 @@
 					<label for="stratLabel" class="form-label">Label</label>
 				</div>
 				<div class="col-8 col-sm-12">
-					<input id="stratLabel" name="stratLabel" type="text" v-model="stratLabel">
+					<input id="stratLabel" name="stratLabel" type="text" placeholder="My Label" v-model="stratLabel">
 				</div>
 			</div>
 			<div v-show="selectedId" class="form-group">
@@ -85,7 +85,7 @@
 		async onSubmit() {
 			let stratParamsValues = this.jsons.map(e => e.value);
 			let isValidParams = this.jsons.reduce((r,e) => r && e.valid, true);
-			if (isValidParams) {
+			if (isValidParams && this.stratLabel != '') {
 				let data = {
 					'strat_id': this.selectedId,
 					'label': this.stratLabel,

@@ -24,30 +24,44 @@ def save_post_strat(file_bytes, strat: Strat):
 
 def save_strat(file_bytes, strat: Strat):
     strat_path = f'public/strat_{strat.id}'
+    strat_path_src = f'{strat_path}/src'
+
     unzipdir_bytes(file_bytes, strat_path)
-    if not os.path.isfile(os.path.join(f'public/strat_{strat.id}', strat.entry_path)):
-        shutil.rmtree(f'public/strat_{strat.id}', ignore_errors=True)
+    unzipdir_bytes(file_bytes, strat_path_src)
+    if not os.path.isfile(os.path.join(strat_path_src, strat.entry_path)):
+        shutil.rmtree(strat_path, ignore_errors=True)
         return False
+
     setup_strat_env(strat_path)
     return True
 
 def post_strat(strat: Strat):
     strat_path = f'public/strat_{strat.id}'
+    strat_path_src = f'{strat_path}/src'
     temp_path = f'public/temp_{strat.id}.zip'
-    zipdir(temp_path, strat_path)
+
+    zipdir(temp_path, strat_path_src)
+    
     st_upload(strat.id, temp_path)
     fs_save(_collection, strat.id, strat.toDict())
+
     os.remove(temp_path)
 
 def get_strat(strat_id: str):
     strat_dict = fs_get(_collection, strat_id)
     if strat_dict is None: return None
+
     strat = Strat.fromDict(strat_dict)
     strat_path = f'public/strat_{strat.id}'
+    strat_path_src = f'{strat_path}/src'
+
     if not os.path.isdir(strat_path):
         temp_path = f'public/temp_{strat.id}.zip'
         st_download(strat.id, temp_path)
+
         unzipdir(temp_path, strat_path)
+        unzipdir(temp_path, strat_path_src)
+
         os.remove(temp_path)
         setup_strat_env(strat_path)
     return strat

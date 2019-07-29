@@ -13,6 +13,7 @@ from services.strats import start_status_check
 import psutil
 import datetime
 import json
+import logging
 
 app = Flask(__name__)#, static_folder='../frontend/dist')
 app.url_map.strict_slashes = False
@@ -24,10 +25,13 @@ class RegexConverter(BaseConverter):
 
 app.url_map.converters['regex'] = RegexConverter
 
-app.register_blueprint(results_controller)
-app.register_blueprint(strat_controller)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 status_job = start_status_check(10)
+
+app.register_blueprint(results_controller)
+app.register_blueprint(strat_controller)
 
 def get_processes(search=None):
     status = []
@@ -44,7 +48,7 @@ def get_processes(search=None):
     return status
 
 @app.route('/api/log/')
-def log():
+def view_log():
     with open('status.log', 'r') as file:
         return f'<pre>{file.read()}</pre>'
 

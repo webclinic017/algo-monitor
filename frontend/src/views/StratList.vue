@@ -15,7 +15,7 @@
                         <div class="li-text">
                             Strat Name: {{ strat.name }} | Strat ID: {{ strat.id }}
                         </div>
-                        <button class="btn btn-link btn-sm" @click="removeStrat(strat.id)"><i class="icon icon-cross"></i></button>
+                        <button class="btn btn-link btn-sm" @click="removeStrat(strat.id)" v-bind:class="{disabled: deletingStrat}"><i class="icon icon-cross"></i></button>
                     </div>
                 </li>
             </ul>
@@ -36,12 +36,14 @@
 	})
 	export default class StratList extends Vue {
 		private strats: any[] | null = null
+		private deletingStrat: boolean = false;
 
 		async created() {
 			this.strats = (await axios.get('/api/strat/list')).data;
         }
         
         async removeStrat(strat_id) {
+			this.deletingStrat = true;
 			try {
 				let success = (await axios.post('/api/strat/delete/', {strat_id: strat_id})).data;
 				this.$toasted.show('Estratégia excluída!').goAway(2000);
@@ -52,6 +54,7 @@
 					type: 'error'
 				}).goAway(2000);
 			}
+			this.deletingStrat = false;
         }
 	}
 </script>

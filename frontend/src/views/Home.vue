@@ -99,10 +99,15 @@
   ]
 }
 </pre>
+				<strong><em>Devido à limitações no Firebase, não é possível criar array de arrays.</em></strong>
 			</dd>
 
 			<dt>Arquivo (zip) da Estratégia</dt>
-			<dd>Todos arquivos utilizados pelo algoritmo, zipados em um único arquivo.</dd>
+			<dd>
+				Todos arquivos utilizados pelo algoritmo, zipados em um único arquivo.
+				<br>
+				<strong><em>Caso o algoritmo possua dependências, incluir na raiz do zip o arquivo requirements.txt com todos os pacotes (o "pipreqs" pode ser usado para criar o arquivo de requirements automaticamente).</em></strong>
+			</dd>
 		</dl>
 
 		<br>
