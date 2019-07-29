@@ -14,4 +14,4 @@ plat = platform.system()
 if plat == 'Windows':
     os.system(f'Scripts\\python {entry_path} {config_guid}')
 else:
-    os.system(f'Scripts\\\\python {entry_path} {config_guid}')
+    os.system(f'bin/python {entry_path} {config_guid}')
