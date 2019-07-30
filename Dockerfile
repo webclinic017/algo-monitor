@@ -5,5 +5,5 @@ WORKDIR /app
 RUN pip install gunicorn
 RUN pip install -r backend/requirements.txt
 RUN cd frontend && npm install && npm run build && cd ..
-CMD cd backend && gunicorn app:server -b 0.0.0.0:80 --workers=4 > status.log 2>&1
+CMD cd backend && gunicorn app:server -b 0.0.0.0:80 --workers=4
 EXPOSE 80
