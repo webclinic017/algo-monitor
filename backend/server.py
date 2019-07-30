@@ -4,6 +4,7 @@ import repository.firebase as fb
 fb.init()
 
 from flask import Flask, render_template, send_file, Response, request, send_from_directory
+from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.routing import BaseConverter
 from controllers.results import results_controller
 from controllers.strat import strat_controller
@@ -69,6 +70,8 @@ def statics(path):
 @app.route('/<path:path>')
 def catch_all(path):
     return send_from_directory('../frontend/dist', 'index.html')
-    
+
+app.wsgi_app = ProxyFix(app.wsgi_app)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=80)#debug=True
