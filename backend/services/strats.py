@@ -157,6 +157,7 @@ def status_check():
                 ProcessManager.add_process(p['run_id'], process)
         else:
             dump_local_results(p['run_id'],p['strat_id'])
-            if not run_status(p['process']):
+            if p['process'].poll() is not None: #not run_status(p['process']):
+                a,b = p['process'].communicate()
                 ProcessManager.remove(p['run_id'])
                 remove_config(p['run_id'], p['strat_id'])
