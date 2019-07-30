@@ -39,7 +39,7 @@
 			</div>
 			<div v-show="selectedId" class="form-group">
 				<div class="col-ml-auto col-8 col-sm-12">
-					<input @click="onSubmit" type="button" value="Iniciar" class="btn btn-primary">
+					<input type="button" value="Iniciar" class="btn btn-primary" @click="onSubmit" v-bind:class="{disabled: startingStrat}">
 				</div>
 			</div>
 		</form>
@@ -65,6 +65,7 @@
 		private selectedId: any = null;
 		private selectedStrat: any = null;
 		private stratLabel: any = '';
+		private startingStrat: boolean = false;
 
 		private stratParams: any = {};
 		private jsons: any[] = [];
@@ -86,14 +87,23 @@
 			let stratParamsValues = this.jsons.map(e => e.value);
 			let isValidParams = this.jsons.reduce((r,e) => r && e.valid, true);
 			if (isValidParams && this.stratLabel != '') {
-				let data = {
-					'strat_id': this.selectedId,
-					'label': this.stratLabel,
-					'params': stratParamsValues
-				};
-				let status = (await axios.post('/api/strat/run', data)).data;
-				this.$toasted.show('Estratégia iniciada!').goAway(2000)
-				this.$router.push({ name: 'process' })
+				this.startingStrat = true;
+				try {
+					let data = {
+						'strat_id': this.selectedId,
+						'label': this.stratLabel,
+						'params': stratParamsValues
+					};
+					let status = (await axios.post('/api/strat/run', data)).data;
+					this.$toasted.show('Estratégia iniciada!').goAway(2000)
+					this.$router.push({ name: 'process' })
+				}
+				catch (error) {
+					this.$toasted.show('Erro ao executar estratégia!', {
+						type: 'error'
+					}).goAway(2000);
+				}
+				this.startingStrat = false;
 			}
 			else {
 				this.$toasted.show('Estratégia inválida!').goAway(2000)

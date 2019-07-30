@@ -37,7 +37,7 @@
 			</div>
 			<div class="form-group">
 				<div class="col-ml-auto col-8 col-sm-12">
-					<input @click="onSubmit" type="button" value="Enviar" class="btn btn-primary">
+					<input type="button" value="Enviar" class="btn btn-primary" @click="onSubmit" v-bind:class="{disabled: savingStrat}">
 				</div>
 			</div>
 		</form>
@@ -54,6 +54,7 @@
 	export default class StratCreate extends Vue {
 		private editor!: any;
 		private fileName: string = '';
+		private savingStrat: boolean = false;
 		
 		mounted() {
 			var container = (<HTMLElement>document.querySelector('#stratParams'));
@@ -113,17 +114,26 @@
 			let isValidFile = file && file.files && file.files.length > 0;
 			
 			if (isValidParams && isValidFile) {
-				formData.append('strat_name', stratName.value)
-				formData.append('entry_path', entryPath.value)
-				formData.append('params', JSON.stringify(stratParams));
-				formData.append('file', file!.files![0]);
-				await axios.post('/api/strat/upload', formData, {
-					headers: {
-						'Content-Type': 'multipart/form-data'
-					}
-				});
-				this.$toasted.show('Estratégia criada!').goAway(2000)
-				this.$router.push({ name: 'process' })
+				this.savingStrat = true;
+				try {
+					formData.append('strat_name', stratName.value)
+					formData.append('entry_path', entryPath.value)
+					formData.append('params', JSON.stringify(stratParams));
+					formData.append('file', file!.files![0]);
+					let success = await axios.post('/api/strat/upload', formData, {
+						headers: {
+							'Content-Type': 'multipart/form-data'
+						}
+					}).then(r => r.data);
+					this.$toasted.show('Estratégia criada!').goAway(2000)
+					this.$router.push({ name: 'process' })
+				}
+				catch (error) {
+					this.$toasted.show('Erro ao criar estratégia!', {
+						type: 'error'
+					}).goAway(2000);
+				}
+				this.savingStrat = false;
 			}
 			else {
 				this.$toasted.show('Estratégia inválida!').goAway(2000)
