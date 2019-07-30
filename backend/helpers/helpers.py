@@ -9,10 +9,7 @@ def zipdir(out_path, dir_path):
     with zipfile.ZipFile(out_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for root, dirs, files in os.walk(dir_path):
             for file in files:
-                cwd = os.getcwd()
-                os.chdir(root.split(os.sep)[0])
-                zipf.write(os.path.relpath(os.path.join(root, file), os.path.join(dir_path, './')))
-                os.chdir(cwd)
+                zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), os.path.join(dir_path)))
 
 def unzipdir(zip_path, out_dir):
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
