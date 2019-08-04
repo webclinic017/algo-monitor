@@ -1,1 +1,1 @@
-pipreqs . --encoding=utf-8 --ignore=public --force
+pipreqs . --encoding=utf-8 --ignore=public,_my_strats --force
