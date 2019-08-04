@@ -1,7 +1,7 @@
 <template>
 	<div class="home">
 		<p>
-			Este sistema de monitoramento tem com finalidade facilitar a utilização de tecnicas complexas de Algo Trading através de uma interface amigavel, tanto para desenvolvedores quanto para usuários. Através dessa ferramenta, é possível utilizar algoritmos complexos através de uma parametrização simplificada, definindo valores de entrada pré-definidos para a execução, e visualizando seus resultados de forma organizada e centralizada.
+			Este sistema de monitoramento tem com finalidade facilitar a utilização de técnicas complexas de Algo Trading através de uma interface amigável, tanto para desenvolvedores quanto para usuários. Através dessa ferramenta, é possível utilizar algoritmos complexos através de uma parametrização simplificada, definindo valores de entrada pré-definidos para a execução, e visualizando seus resultados de forma organizada e centralizada.
 		</p>
 		<p>
 			Após o inicio da execução, é possível monitorar o andamento do algoritmo, desde sua adição na fila de execução, enquanto aguarda outros processos, até o momento em que há a apresentação dos resultados, seguida pelo fim da atividade.
@@ -15,7 +15,7 @@
 			Inicialmente, o desenvolvedor deve registrar um novo algoritmo no sistema, através da <router-link :to="{name:'strat-create'}">página de criação</router-link>.
 		</p>
 		<p>
-			Cabe à ele preecher os campos:
+			Cabe à ele preencher os campos:
 		</p>
 		<dl>
 			<dt>Nome da Estratégia</dt>
@@ -50,14 +50,14 @@
 			<dd>
 				Parâmetros de entrada da estratégia, definidos no formato JSON.
 				<br>
-				Deve seguir o padrão "chave": "valor", em que o valor será utilizado para prezumir o tipo do dado em questão.
+				Deve seguir o padrão "chave": "valor", em que o valor será utilizado para presumir o tipo do dado em questão.
 				<br>
-				<small>Obs: os parâmetros seram enviados em forma de lista, visto que os usuários podem enviar múltiplos parâmetros simultaneamente.</small>
+				<small>Obs: os parâmetros serão enviados em forma de lista, visto que os usuários podem enviar múltiplos parâmetros simultaneamente.</small>
 				<br><br>
 				Exemplo de esquema:
 <pre>
 {
-  "param1": "parametro exemplo",	# string
+  "param1": "parâmetro exemplo",	# string
   "param2": 123,			# number
   "param3": [1,2,3],			# list : number (número de elementos não é considerado)
   "param4": {				# dictionary
@@ -99,7 +99,7 @@
   ]
 }
 </pre>
-				<strong><em>Devido à limitações no Firebase, não é possível criar array de arrays.</em></strong>
+				<strong><em>Obs: Devido à limitações no Firebase, não é possível criar array de arrays.</em></strong>
 			</dd>
 
 			<dt>Arquivo (zip) da Estratégia</dt>
@@ -115,7 +115,7 @@
 			Template de Código
 		</h5>
 		<p>
-			Para utilizar os parâmetros enviados para o algoritmo durante sua execução, o código cadastrado deve carregar-los da seguinte maneira:
+			Para utilizar os parâmetros enviados para o algoritmo durante sua execução, o código cadastrado deve carrega-los da seguinte maneira:
 		</p>
 <pre>
 import json
@@ -168,7 +168,7 @@ with open(f'result_{result_id}.json', 'w') as file:
 			
 			<dt>Label</dt>
 			<dd>
-				Categoria à qual a execução pertence. Por exemplo, um mesmo algoritmo executado multiplas vezes para o mesmo ativo e mesma estratégia, mas prevendo dias distintos (D+1, D+2, D+3, ...), pode ser agrupado como "PETR4 LONG-SHORT fev/2019".
+				Categoria à qual a execução pertence. Por exemplo, um mesmo algoritmo executado múltiplas vezes para o mesmo ativo e mesma estratégia, mas prevendo dias distintos (D+1, D+2, D+3, ...), pode ser agrupado como "PETR4 LONG-SHORT fev/2019".
 				<br>
 				Essa funcionalidade facilita a organização dos resultados e também possibilita a visualização gráfica do conjunto de execuções.
 			</dd>
@@ -186,7 +186,7 @@ with open(f'result_{result_id}.json', 'w') as file:
 			Processos
 		</h4>
 		<p>
-			Após o ínicio da execução, esta pode ser acompanhada na <router-link :to="{name:'process'}">página de processos</router-link>.
+			Após o inicio da execução, esta pode ser acompanhada na <router-link :to="{name:'process'}">página de processos</router-link>.
 		</p>
 
 		<br>
