@@ -6,10 +6,10 @@ fb.init()
 from flask import Flask, render_template, send_file, Response, request, send_from_directory
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.routing import BaseConverter
-from controllers.results import results_controller
-from controllers.strat import strat_controller
+from controllers.results_controller import results_controller
+from controllers.strat_controller import strat_controller
 
-from services.strats import start_status_check
+from services.strats_service import start_status_check
 
 import psutil
 import datetime

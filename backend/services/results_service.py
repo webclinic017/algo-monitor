@@ -59,7 +59,7 @@ def read_local_results(run_id = None, result_id = None, strat_id = None, label =
     if label is not None:
         results_flatten = [r for r in results_flatten if r['config'][0]['label'] == label]
     
-    results_list = Result.fromListDict(results_flatten) # TODO: result errado trava aqui, e processo continua ativo na tela, além de travar a fila
+    results_list = Result.fromListDict(results_flatten)
     
     return results_list
 
@@ -97,6 +97,6 @@ def dump_local_results(run_id,strat_id):
         results = read_local_results(run_id=run_id)
         for r in results: save_result(r)
         delete_local_results(run_id=run_id)
-    except (TypeError, KeyError):
+    except:
         delete_local_results(strat_id=strat_id)
         print(f'---------- INVALID RESULT (run: {run_id}) (strat: {strat_id}) ----------')

@@ -1,0 +1,7 @@
+{
+    "is_test": true,
+    "use_gpu": false,
+    "ticker_iterations": 1,
+    "config_iterations": 3,
+    "tickers": ["BOVA11"]
+}

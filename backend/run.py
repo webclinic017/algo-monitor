@@ -3,6 +3,7 @@
 import os
 import sys
 import platform
+import subprocess
 
 path = sys.argv[1]
 entry_path = sys.argv[2]
@@ -12,6 +13,6 @@ os.chdir(path)
     
 plat = platform.system()
 if plat == 'Windows':
-    os.system(f'Scripts\\python {entry_path} {config_guid}')
+    subprocess.call(f'Scripts\\python {entry_path} {config_guid}')
 else:
-    os.system(f'bin/python {entry_path} {config_guid}')
+    subprocess.call(['bin/python',entry_path,config_guid])

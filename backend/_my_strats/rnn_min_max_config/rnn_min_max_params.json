@@ -1,0 +1,24 @@
+{
+    "is_test": false,
+    "use_gpu": false,
+    "ticker_iterations": 1,
+    "config_iterations": 3,
+    "tickers": ["BOVA11"],
+    "pred_offset": 1,
+    "full_data": true,
+    "prev_range": 75,
+    "sample_size": 2000,
+    "test_size": 0.2,
+    "epochs": 100,
+    "batchs": 50,
+    "nodes": 300,
+    "emas": [15, 25, 50, 200],
+    "pocids": [1, 5, 50, 200],
+    "macds": {
+        "0": [12, 26],
+        "1": [50, 200]
+    },
+    "rsis": [14],
+    "extra_layers": 0,
+    "dropout": 0.25
+}

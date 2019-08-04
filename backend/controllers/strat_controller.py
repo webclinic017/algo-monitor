@@ -4,7 +4,7 @@ from flask import Blueprint, request
 import json
 from models.process_manager import ProcessManager
 from models.strat import Strat
-from services.strats import post_strat, get_strat, run_strat, save_strat, create_config, get_strats_list, save_post_strat, delete_strat
+from services.strats_service import post_strat, get_strat_obj, run_strat, save_strat, create_config, get_strats_list, save_post_strat, delete_strat
 from werkzeug import secure_filename
 import uuid
 from threading import Thread
@@ -46,7 +46,7 @@ def upload():
 
     thread = Thread(target=save_post_strat,args=(file.read(), strat))
     thread.setName(f'{strat.name} : {strat.id}')
-    ProcessManager.uploading_list_add(thread)
+    ProcessManager.uploading_add(thread)
     thread.start()
 
     # success = save_strat(file.read(), strat)
@@ -58,14 +58,29 @@ def upload():
 
 @strat_controller.route('/api/strat/get-upload-queue/')
 def get_upload_queue():
-    process_list = ProcessManager.uploading_list_get_all()
+    process_list = ProcessManager.uploading_get_all()
     return json.dumps(process_list), 200, {'ContentType':'application/json'}
 
 @strat_controller.route('/api/strat/remove-upload-queue/', methods=['POST'])
 def remove_upload_queue():
     json_r = request.get_json()
     strat_process_id = json_r['strat_process_id']
-    removed = ProcessManager.uploading_list_remove(strat_process_id)
+    removed = ProcessManager.uploading_remove(strat_process_id)
+
+    if len(removed) == 0: return json.dumps({'status': 'error', 'code': 1}), 404, {'ContentType':'application/json'}
+
+    return json.dumps({'status': 'success', 'removed': removed}), 200, {'ContentType':'application/json'}
+
+@strat_controller.route('/api/strat/get-download-queue/')
+def get_download_queue():
+    process_list = ProcessManager.downloading_get_all()
+    return json.dumps(process_list), 200, {'ContentType':'application/json'}
+
+@strat_controller.route('/api/strat/remove-download-queue/', methods=['POST'])
+def remove_download_queue():
+    json_r = request.get_json()
+    strat_process_id = json_r['strat_process_id']
+    removed = ProcessManager.downloading_remove(strat_process_id)
 
     if len(removed) == 0: return json.dumps({'status': 'error', 'code': 1}), 404, {'ContentType':'application/json'}
 
@@ -79,7 +94,11 @@ def run():
     params = json_r['params']
 
     run_id = str(uuid.uuid4())
-    strat = get_strat(strat_id)
+    strat = get_strat_obj(strat_id)
+
+    if strat is None:
+        return json.dumps({'status': 'error', 'code': 1}), 404, {'ContentType':'application/json'}
+
     strat_data = {
         'run_id': run_id,
         'strat_id': strat_id,
@@ -91,7 +110,7 @@ def run():
     for p in params:
         config.append({**strat_data, **p})
 
-    create_config(run_id, strat_id, config)
+    create_config(run_id, strat, config)
     ProcessManager.add(run_id, strat_id)
 
     return json.dumps({'status': 'success', 'run_id': run_id, 'strat_id': strat_id}), 200, {'ContentType':'application/json'}

@@ -2,7 +2,44 @@
 
 import json
 import jsonpickle
-import msgpack
+import numpy as np
+
+def convert_nan(obj):
+    isnan = lambda x: isinstance(x, float) and np.isnan(x)
+    if isinstance(obj, list):
+        for i,e in enumerate(obj):
+            if isnan(e):
+              obj[i] = None
+            else:
+              convert_nan(e)
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            if isnan(v):
+                obj[k] = None
+            else:
+                convert_nan(v)
+    elif isnan(obj):
+        obj = None
+
+class nanInfPickler(jsonpickle.pickler.Pickler):
+    """
+    encodes float values like inf / nan as strings to follow JSON spec while keeping meaning
+    Im doing this in custom class because handlers do not fire for floats
+    """
+    inf = float('inf')
+    negativeInf = float('-inf')
+
+    def _get_flattener(self, obj):
+        if type(obj) == type(float()):
+            if obj == self.inf:
+                return lambda obj: 'Infinity'
+            if obj == self.negativeInf:
+                return lambda obj: '-Infinity'
+            if np.isnan(obj):
+                return lambda obj: None
+        return super(nanInfPickler, self)._get_flattener(obj)
+
+jsonpickle.pickler.Pickler = nanInfPickler
 
 def fullname(c):
   module = c.__module__
@@ -13,10 +50,11 @@ def fullname(c):
 
 class BaseClass():
     @classmethod
-    def fromDict(cls, dict):
+    def fromDict(cls, obj_dict):
         # allowed = ('key1', 'key2')
         # df = {k : v for k, v in d.iteritems() if k in allowed}
-        return cls(**dict)
+        convert_nan(obj_dict)
+        return cls(**obj_dict)
 
     def toDict(self):
         return self.__dict__

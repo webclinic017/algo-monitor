@@ -53,7 +53,7 @@
         }
 
         tableSetup(records) {
-            if (!records) return 
+            if (!records) return
             
             let flatResults = records.map(e => {
                 let { id, ...rest } = e;

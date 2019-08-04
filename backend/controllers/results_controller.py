@@ -2,17 +2,17 @@
 
 from flask import Blueprint, request
 from models.result import Result
-from services.results import get_result, get_all_results, delete_result, delete_all_results
+from services.results_service import get_result, get_all_results, delete_result, delete_all_results
 import json
 
 results_controller = Blueprint('results_controller', __name__)
 
-@results_controller.route('/api/results/', defaults={'id': None, 'label': None})
-@results_controller.route('/api/results/id/<id>/', defaults={'label': None})
-@results_controller.route('/api/results/label/<label>/', defaults={'id': None})
-def results(id, label):
-    if id is not None:
-        result = get_result(id)
+@results_controller.route('/api/results/', defaults={'result_id': None, 'label': None})
+@results_controller.route('/api/results/id/<result_id>/', defaults={'label': None})
+@results_controller.route('/api/results/label/<label>/', defaults={'result_id': None})
+def results(result_id, label):
+    if result_id is not None:
+        result = get_result(result_id)
         if result is None:
             result = json.dumps(result)
         else:
