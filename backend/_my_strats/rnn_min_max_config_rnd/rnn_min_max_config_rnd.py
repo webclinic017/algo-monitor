@@ -73,7 +73,7 @@ for tkr in tickers: # para cada ticker
         cfgs = [
             {
                 'pred_offset': h.get_random(cfg_pred_offset),
-                'full_data': np.random.randint(2) == 0,
+                'full_data': True, #np.random.randint(2) == 0,
                 'prev_range': h.get_random(cfg_prev_range),
                 'sample_size': h.get_random(cfg_sample_size),
                 'test_size': 0.2,#h.get_random(cfg_test_size),
@@ -90,7 +90,7 @@ for tkr in tickers: # para cada ticker
         ]
         
         for c in cfgs: # para cada configuração (fará média com todas cfgs - ensemble)
-            macds_config = c['macds']
+            macds_config = list(c['macds'].values())
 
             date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
             
@@ -321,7 +321,7 @@ for tkr in tickers: # para cada ticker
             with open(f'result_{result_id}.json', 'w') as file:
                 result = {
                     "id": result_id,			# id do resultado
-                    "config": cfgs,			# configurações utilizadas pelo algoritmo
+                    "config": config_list,			# configurações utilizadas pelo algoritmo
                     "result": {				# resultados do algoritmo, composto por "real", "pred" e "metrics"
                         "real": [pred_data['Min'], pred_data['Max']],		# array com os valores reais (Ex.: para um algoritmo que prevê a abertura do dia seguinte, na lista pode constar o preço real da abertura, para comparação)
                         "pred": avg_preds,		# array com os valores da previsão
