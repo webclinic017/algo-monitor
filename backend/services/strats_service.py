@@ -29,6 +29,7 @@ def save_strat(file_bytes, strat: Strat):
     unzipdir_bytes(file_bytes, strat_path)
     unzipdir_bytes(file_bytes, strat_path_src)
     if not os.path.isfile(os.path.join(strat_path_src, strat.entry_path)):
+        print(f'---------- INVALID STRAT (strat: {strat.id}) (entry: {strat.entry_path}) ----------')
         shutil.rmtree(strat_path, ignore_errors=True)
         return False
 
