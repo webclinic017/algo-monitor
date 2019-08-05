@@ -90,7 +90,7 @@ for tkr in tickers: # para cada ticker
         ]
         
         for c in cfgs: # para cada configuração (fará média com todas cfgs - ensemble)
-            macds_config = list(c['macds'].values())
+            macds_config = c['macds']
 
             date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
             
