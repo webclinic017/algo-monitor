@@ -321,7 +321,7 @@ for tkr in tickers: # para cada ticker
             with open(f'result_{result_id}.json', 'w') as file:
                 result = {
                     "id": result_id,			# id do resultado
-                    "config": config_list,			# configurações utilizadas pelo algoritmo
+                    "config": cfgs,			# configurações utilizadas pelo algoritmo
                     "result": {				# resultados do algoritmo, composto por "real", "pred" e "metrics"
                         "real": [pred_data['Min'], pred_data['Max']],		# array com os valores reais (Ex.: para um algoritmo que prevê a abertura do dia seguinte, na lista pode constar o preço real da abertura, para comparação)
                         "pred": avg_preds,		# array com os valores da previsão
