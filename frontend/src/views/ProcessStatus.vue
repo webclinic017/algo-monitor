@@ -93,16 +93,16 @@
             });
         }
 
-        async removeUploadProcess(name) {
+        async removeUploadProcess(strat_id) {
             this.deleting = true;
             try {
-                let success = await axios.post('/api/strat/remove-upload-queue', {'strat_process_id':name}).then(r => r.data);
+                let success = await axios.post('/api/strat/remove-upload-queue', {'strat_process_id':strat_id}).then(r => r.data);
                     // .catch(error => {
                     //     if (error.response) {
                     //         console.log(error.response);
                     //     }
                     // });
-                this.uploadList = this.uploadList!.filter(e => e.name != name);
+                this.uploadList = this.uploadList!.filter(e => e.strat_id != strat_id);
 				this.$toasted.show('Registro excluído!').goAway(2000);
             } catch (error) {
                 // console.error(error);
@@ -113,16 +113,16 @@
             this.deleting = false;
         }
 
-        async removeDownloadProcess(name) {
+        async removeDownloadProcess(strat_id) {
             this.deleting = true;
             try {
-                let success = await axios.post('/api/strat/remove-download-queue', {'strat_process_id':name}).then(r => r.data);
+                let success = await axios.post('/api/strat/remove-download-queue', {'strat_process_id':strat_id}).then(r => r.data);
                     // .catch(error => {
                     //     if (error.response) {
                     //         console.log(error.response);
                     //     }
                     // });
-                this.downloadList = this.downloadList!.filter(e => e.name != name);
+                this.downloadList = this.downloadList!.filter(e => e.strat_id != strat_id);
 				this.$toasted.show('Registro excluído!').goAway(2000);
             } catch (error) {
                 // console.error(error);
