@@ -3,13 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "npm run serve",
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "vue-cli-service build",
+    "start": "npm run serve"
   },
   "dependencies": {
     "@types/jsoneditor": "^5.28.1",
     "axios": "^0.19.0",
+    "bootstrap": "^4.3.1",
+    "bootstrap-vue": "^2.0.0-rc.27",
     "core-js": "^2.6.5",
     "jsoneditor": "^6.1.0",
     "moment": "^2.24.0",
@@ -23,6 +25,7 @@
     "vue-property-decorator": "^8.1.0",
     "vue-router": "^3.0.3",
     "vue-toasted": "^1.1.27",
+    "vuetify": "^2.0.0",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
@@ -32,9 +35,12 @@
     "@vue/cli-plugin-typescript": "^3.9.0",
     "@vue/cli-service": "^3.9.0",
     "node-sass": "^4.9.0",
+    "sass": "^1.17.4",
     "sass-loader": "^7.1.0",
     "typescript": "^3.4.3",
-    "vue-template-compiler": "^2.6.10"
+    "vue-cli-plugin-vuetify": "^0.6.3",
+    "vue-template-compiler": "^2.6.10",
+    "vuetify-loader": "^1.2.2"
   },
   "postcss": {
     "plugins": {

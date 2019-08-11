@@ -8,56 +8,55 @@
 				Tente <router-link :to="{name:'strat-create'}">criar</router-link> uma nova estratégia.
 			</template>
 		</EmptyCard>
-		<form class="form-horizontal" v-if="strats.length > 0">
-			<div class="form-group">
-				<div class="col-4 col-sm-12">
-					<label for="stratSelect" class="form-label">Estratégia</label>
-				</div>
-				<div class="col-8 col-sm-12">
-					<select id="stratSelect" name="stratSelect" class="form-select" v-model="selectedId" @change="onStratSelect">
-						<option v-for="strat in strats" :value="strat.id" :key="strat.id">
-							{{ strat.name }}
-						</option>
-					</select>
-				</div>
-			</div>
-			<div v-show="selectedId" class="form-group">
-				<div class="col-4 col-sm-12">
-					<label for="stratLabel" class="form-label">Label</label>
-				</div>
-				<div class="col-8 col-sm-12">
-					<input id="stratLabel" name="stratLabel" type="text" placeholder="My Label" v-model="stratLabel">
-				</div>
-			</div>
-			<div v-show="selectedId" class="form-group">
-				<div class="col-4 col-sm-12">
-					<label class="form-label">Parâmetros</label>
-				</div>
-				<div class="col-8 col-sm-12">
-					<JsonEditorGroup :jsonParams="stratParams" :readOnly="false" @jsonsUpdate="updateJsons"/>
-				</div>
-			</div>
-			<div v-show="selectedId" class="form-group">
-				<div class="col-ml-auto col-8 col-sm-12">
-					<input type="button" value="Iniciar" class="btn btn-primary" @click="onSubmit" v-bind:class="{disabled: startingStrat}">
-				</div>
-			</div>
-		</form>
+		<v-form>
+			<v-container grid-list-lg fluid>
+				<v-layout wrap>
+					<v-flex xs12 md6>
+						<v-select
+							v-model="selectedId"
+							label="Estratégia"
+							:items="strats"
+							item-text="name"
+							item-value="id"
+							@change="onStratSelect"/>
+					</v-flex>
+					<v-flex xs12 md6 v-show="selectedId">
+						<v-text-field
+							v-model="stratLabel"
+							label="Label"
+							required
+						></v-text-field>
+					</v-flex>
+					<v-flex xs12 v-show="selectedId">
+						<label class="form-label">Parâmetros</label>
+						<JsonEditorSchemaGroup
+							:jsonParams="stratParams"
+							:readOnly="false"
+							@jsonsUpdate="updateJsons"/>
+					</v-flex>
+					<v-flex xs12 md4 v-show="selectedId">
+						<v-btn color="primary" @click="onSubmit" :disabled="startingStrat">Iniciar</v-btn>
+					</v-flex>
+				</v-layout>
+			</v-container>
+		</v-form>
 	</div>
-	<div class="loading loading-xlg" v-else></div>
+	<div class="loading" v-else>
+		<v-progress-circular indeterminate :size="100" :width="2"/>
+	</div>
 </template>
 
 <script lang="ts">
 	import { Component, Vue } from 'vue-property-decorator';
     import EmptyCard from '@/components/EmptyCard.vue';
 	import BetterCast from '../helpers/betterCast';
-	import JsonEditorGroup from '@/components/JsonEditorGroup.vue';
+	import JsonEditorSchemaGroup from '@/components/JsonEditorSchemaGroup.vue';
 	import axios from 'axios';
 
 	@Component({
 		components: {
             EmptyCard,
-			JsonEditorGroup
+			JsonEditorSchemaGroup
 		}
 	})
 	export default class StratRun extends Vue {
@@ -71,7 +70,12 @@
 		private jsons: any[] = [];
 
 		async created() {
-			this.strats = (await axios.get('/api/strat/list')).data;
+			this.strats = (await axios.get('/api/strat/list')).data
+				.sort((a,b) => {
+					if (a.name == b.name) return 0;
+					else if (a.name > b.name) return 1;
+					return -1;
+				});
 		}
 
 		onStratSelect() {

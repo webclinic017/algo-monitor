@@ -22,7 +22,8 @@
 	import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 	import { VueGoodTable } from 'vue-good-table';
     import FlattenObject from '../helpers/flattenObject';
-	import _ from 'lodash';
+    import _ from 'lodash';
+    import BetterCast from '../helpers/betterCast';
 	
 	@Component({
         components: {
@@ -53,7 +54,7 @@
         }
 
         tableSetup(records) {
-            if (!records) return
+            if (!records || !BetterCast.isArray(records)) return
             
             let flatResults = records.map(e => {
                 let { id, ...rest } = e;
@@ -89,8 +90,8 @@
             }
             for (let i in this.rows) {
                 this.rows[i]['id'] = `<a href="/result/id/${this.rows[i]['id']}">${this.rows[i]['id']}</a>`
-                for (let j in this.rows[i]['config'])
-                    this.rows[i]['config'][j]['label'] = `<a href="/result/label/${this.rows[i]['config'][j]['label']}">${this.rows[i]['config'][j]['label']}</a>`
+                for (let j in this.rows[i]['config']) {
+                    this.rows[i]['config'][j]['label'] = `<a href="/result/label/${encodeURIComponent(encodeURIComponent(encodeURIComponent(this.rows[i]['config'][j]['label'])))}">${this.rows[i]['config'][j]['label']}</a>`}
             }
         }
 

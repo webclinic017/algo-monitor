@@ -1,5 +1,5 @@
 <template>
-	<div class="process-status" :class="{ 'is-empty': processList && processList.length == 0 && uploadList && uploadList.length == 0 && download && download.length == 0 }" v-if="processList || uploadList || downloadList">
+	<div class="process-status" :class="{ 'is-empty': processList && processList.length == 0 && uploadList && uploadList.length == 0 && downloadList && downloadList.length == 0 }" v-if="processList || uploadList || downloadList">
         <EmptyCard v-if="processList && processList.length == 0 && uploadList && uploadList.length == 0 && downloadList && downloadList.length == 0">
             <template v-slot:title>
                 Nenhum processo ativo foi encontrado
@@ -7,42 +7,55 @@
         </EmptyCard>
         <div class="process-wrapper" v-else>
             <div v-if="uploadList && uploadList.length > 0">
-                <h5>Uploads</h5>
-                <ul class="strat-process">
-                    <li v-for="(process, index) in uploadList" v-bind:key="index">
-                        <div class="li-wrapper">
-                            <div class="li-text">Strat Upload ID: {{ process.strat_id }} | Finalizado: {{ process.completed }}</div>
-                            <button class="btn btn-link btn-sm" @click="removeUploadProcess(process.strat_id)" v-bind:class="{ disabled: deleting }"><i class="icon icon-cross"></i></button>
-                        </div>
-                    </li>
-                </ul>
+                <h3>Uploads</h3>
+                <v-list class="uploads">
+                    <v-list-item class="list-item" two-line v-for="(process, index) in uploadList" v-bind:key="index">
+                        <v-list-item-content class="list-content">
+                            <v-list-item-title>
+                                <span>{{ process.strat_id }}</span>
+                                <v-btn class="ml-2" text small icon @click="removeUploadProcess(process.strat_id)" :disabled="deleting">
+                                    <v-icon>mdi-close</v-icon>
+                                </v-btn>
+                            </v-list-item-title>
+                            <v-list-item-subtitle :class="{ 'success--text': process.completed, 'error--text': !process.completed  }">Finalizado: {{ process.completed }}</v-list-item-subtitle>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list>
             </div>
             <div v-if="downloadList && downloadList.length > 0">
-                <h5>Downloads</h5>
-                <ul class="strat-process">
-                    <li v-for="(process, index) in downloadList" v-bind:key="index">
-                        <div class="li-wrapper">
-                            <div class="li-text">Strat Download ID: {{ process.strat_id }} | Finalizado: {{ process.completed }}</div>
-                            <button class="btn btn-link btn-sm" @click="removeDownloadProcess(process.strat_id)" v-bind:class="{ disabled: deleting }"><i class="icon icon-cross"></i></button>
-                        </div>
-                    </li>
-                </ul>
+                <h3>Downloads</h3>
+                <v-list class="downloads">
+                    <v-list-item class="list-item" two-line v-for="(process, index) in downloadList" v-bind:key="index">
+                        <v-list-item-content class="list-content">
+                            <v-list-item-title>
+                                <span>{{ process.strat_id }}</span>
+                                <v-btn class="ml-2" text small icon @click="removeDownloadProcess(process.strat_id)" :disabled="deleting">
+                                    <v-icon>mdi-close</v-icon>
+                                </v-btn>
+                            </v-list-item-title>
+                            <v-list-item-subtitle :class="{ 'success--text': process.completed, 'error--text': !process.completed  }">Finalizado: {{ process.completed }}</v-list-item-subtitle>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list>
             </div>
             <div v-if="processList && processList.length > 0">
-                <h5>Processos em Andamento</h5>
-                <ul class="run-process">
-                    <li v-for="(process, index) in processList" v-bind:key="index">
-                        <div class="li-wrapper">
-                            <div class="li-text">
-                                Run ID: {{ process.run_id }} | Strat ID: {{ process.strat_id }} | Tempo: {{ process.start }}
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+                <h3>Processos em Andamento</h3>
+                <v-list class="run-process">
+                    <v-list-item class="list-item" two-line v-for="(process, index) in processList" v-bind:key="index">
+                        <v-list-item-content class="list-content">
+                            <v-list-item-title>
+                                Run: {{ process.run_id }} | Strat: {{ process.strat_id }}
+                            </v-list-item-title>
+                            <v-list-item-subtitle>Tempo: {{ process.start }}</v-list-item-subtitle>
+                        </v-list-item-content>
+                    </v-list-item>
+                </v-list>
             </div>
         </div>
 	</div>
-	<div class="loading loading-xlg" v-else></div>
+	<div class="loading" v-else>
+		<v-progress-circular indeterminate :size="100" :width="2"/>
+	</div>
 </template>
 
 <script lang="ts">
@@ -140,29 +153,15 @@
 </script>
 
 <style lang="scss" scoped>
-    .strat-process,
-    .run-process {
-        margin-left: 0;
-        margin-right: 0;
-        list-style: none;
-        li {
-            margin-top: 15px;
-            .li-wrapper {
-                display: inline-block;
-                padding: 5px 5px 5px 10px;
-                box-shadow: 0 0 10px 0px rgba(48, 55, 66, 0.1);
-                .li-text,
-                button {
-                    display: inline-block;
-                    vertical-align: middle;
-                }
-                button {
-                    padding: 0 2px;
-                    margin: 2px 5px;
-                    line-height: 1rem;
-                    height: 1.2rem;
-                }
-            }
+    .run-process,
+    .downloads,
+    .uploads {
+        background: transparent;
+        padding: 0 0 15px;
+        .list-item {
+            width: 50%;
+            display: inline-flex;
+            padding: 0;
         }
     }
 </style>

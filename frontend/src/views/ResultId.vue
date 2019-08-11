@@ -6,23 +6,25 @@
 			</template>
 		</EmptyCard>
 		<div class="viewer-wrapper" v-else>
-			<JsonEditor :jsonParams="result ? result : '{}'" :readOnly="true"/>
-			<button class="btn btn-primary" @click="deleteResult" v-bind:class="{disabled: deletingResult}">Excluir</button>
+			<JsonEditorSchema :jsonParams="result ? result : '{}'" :readOnly="true"/>
+			<v-btn class="mt-5" color="error" @click="deleteResult" :disabled="deletingResult">Excluir</v-btn>
 		</div>
 	</div>
-	<div class="loading loading-xlg" v-else></div>
+	<div class="loading" v-else>
+		<v-progress-circular indeterminate :size="100" :width="2"/>
+	</div>
 </template>
 
 <script lang="ts">
 	import { Component, Vue } from 'vue-property-decorator';
     import EmptyCard from '@/components/EmptyCard.vue';
-	import JsonEditor from '@/components/JsonEditor.vue';
+	import JsonEditorSchema from '@/components/JsonEditorSchema.vue';
 	import axios from 'axios'
 
 	@Component({
 		components: {
             EmptyCard,
-			JsonEditor
+			JsonEditorSchema
 		}
 	})
 	export default class ResultId extends Vue {

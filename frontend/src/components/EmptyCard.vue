@@ -1,13 +1,13 @@
 <template>
     <div class="empty">
         <div class="empty-icon">
-            <i class="icon icon-more-horiz"></i>
+            <v-icon>mdi-dots-horizontal</v-icon>
         </div>
-        <p class="empty-title h5">
+        <h3 class="empty-title">
             <slot name="title">
                 Nenhum resultado foi encontrado
             </slot>
-        </p>
+        </h3>
         <p class="empty-subtitle">
             <slot name="description">
                 Tente <router-link :to="{name:'strat-create'}">criar</router-link> uma nova estratégia ou <router-link :to="{name:'strat-run'}">executar</router-link> uma já existente.

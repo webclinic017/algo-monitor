@@ -6,68 +6,47 @@
 			</template>
 		</EmptyCard>
 		<div class="results-wrapper" v-else>
-			<Chart class="results-chart" :records="chartRecords" v-if="chartRecords.length > 0"/>
-			<ResultsTable :records="results" :search="false" @sorts="sortsUpdate"/>
-			<button class="btn btn-primary" @click="deleteAll" v-bind:class="{disabled: deletingResults}">Excluir Todos</button>
+			<v-expansion-panels class="mb-8">
+				<v-expansion-panel>
+					<v-expansion-panel-header>Gráfico</v-expansion-panel-header>
+					<v-expansion-panel-content>
+						<Chart class="results-chart" :items="sortedItems" :chartId="label"/>
+					</v-expansion-panel-content>
+				</v-expansion-panel>
+			</v-expansion-panels>
+			<SmartTable :items="results" :tableId="label" @sortedItems="sortedItemsUpdate"/>
+			<v-btn color="error mt-7" @click="deleteAll" :disabled="deletingResults">Excluir Todos</v-btn>
 		</div>
 	</div>
-	<div class="loading loading-xlg" v-else></div>
+	<div class="loading" v-else>
+		<v-progress-circular indeterminate :size="100" :width="2"/>
+	</div>
 </template>
 
 <script lang="ts">
-	import { Component, Vue, Watch } from 'vue-property-decorator';
+	import { Component, Vue } from 'vue-property-decorator';
     import EmptyCard from '@/components/EmptyCard.vue';
-	import ResultsTable from '@/components/ResultsTable.vue';
+	import SmartTable from '../components/SmartTable.vue';
 	import Chart from '@/components/Chart.vue';
+
 	import axios from 'axios';
-	import _ from 'lodash';
 
 	@Component({
 		components: {
             EmptyCard,
-			ResultsTable,
+			SmartTable,
 			Chart
 		}
 	})
 	export default class ResultLabel extends Vue {
 		private label: string | null = null;
 		private results: any[] | null = null;
-		private sorts: any[] = [];
-		private chartRecords: any[] = [];
 		private deletingResults: boolean = false;
+		private sortedItems: string[] = [];
 		
 		async created() {
 			this.label = this.$route.params.label;
 			this.results = (await axios.get(`/api/results/label/${this.label}`)).data;
-		}
-
-		sortsUpdate(sorts) {
-			this.sorts = sorts;
-		}
-		
-        @Watch("sorts", {
-            immediate: true,
-            deep: true
-        })
-        onSortsChange(value: any[], oldValud: any[]) {
-			this.chartRecords = []
-			
-			if (!this.results || value.length == 0) return
-			for (let i in value) {
-				let temp = value[i]['field'].split('.').reduce((o,i)=>o[i], this.results[0]);
-				if (typeof temp != "number")
-					return
-			}
-
-			this.chartRecords = [['id', ..._.cloneDeep(value.map(e => e['field']))]];
-			this.chartRecords = this.chartRecords.concat(this.results.reverse().reduce((r,e,i) => {
-				value.forEach(f => {
-					if (!r[i])
-						r[i] = [i+1]
-					r[i].push(f['field'].split('.').reduce((o,i)=>o[i], e));
-				});
-				return r;
-			}, []));
 		}
 		
 		async deleteAll() {
@@ -83,23 +62,20 @@
             }
 			this.deletingResults = false;
 		}
+
+		sortedItemsUpdate(items) {
+			this.sortedItems = items;
+		}
 	}
 </script>
 
 <style lang="scss">
-    .result-label {
-		.vgt-responsive {
-			max-height: calc(100vh - 73px - 60px - 43px - 58.5px);
-			overflow-y: auto;
-		}
-		.results-wrapper {
-			&>button {
-				margin-top: 7px;
-			}
-		}
-	}
-
 	.results-chart {
 		padding-bottom: 30px;
+	}
+
+	.chart-select {
+        width: 100%;
+        max-width: 300px;
 	}
 </style>

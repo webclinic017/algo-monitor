@@ -8,10 +8,10 @@
     import BetterCast from '../helpers/betterCast';
 	
 	@Component({})
-	export default class JsonEditor extends Vue {
+	export default class JsonEditorSchema extends Vue {
 		@Prop() jsonParams!: any;
 		@Prop() readOnly!: any;
-		editor!: any;
+		private editor!: any;
 
 		mounted() {
 			this.editorSetup(this.jsonParams);
@@ -44,9 +44,14 @@
 					'properties': schema
                 },
                 'onChange': () => {
-                    let json = this.editor.get();
-                    let valid = this.editor.validateSchema(json);
-                    this.$emit('jsonUpdate', json, valid);
+                    try {
+                        let json = this.editor.get();
+                        let valid = this.editor.validateSchema(json);
+                        this.$emit('jsonUpdate', json, valid);
+                    }
+                    catch {
+                        this.$emit('jsonUpdate', null, false);
+                    }
                 },
 				'onEditable': fieldData => {
 					return !this.readOnly;

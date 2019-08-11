@@ -9,19 +9,24 @@
 			</template>
 		</EmptyCard>
 		<div class="list-wrapper" v-else>
-			<ul>
-                <li v-for="(strat, index) in strats" v-bind:key="index">
-                    <div class="li-wrapper">
-                        <div class="li-text">
-                            Strat Name: {{ strat.name }} | Strat ID: {{ strat.id }}
-                        </div>
-                        <button class="btn btn-link btn-sm" @click="removeStrat(strat.id)" v-bind:class="{disabled: deletingStrat}"><i class="icon icon-cross"></i></button>
-                    </div>
-                </li>
-            </ul>
+            <v-list class="strats">
+                <v-list-item class="list-item" two-line v-for="(strat, index) in strats" v-bind:key="index">
+                    <v-list-item-content class="list-content">
+                        <v-list-item-title>
+                            <span>{{ strat.name }}</span>
+                            <v-btn class="ml-2" text small icon @click="removeStrat(strat.id)" :disabled="deletingStrat">
+                                <v-icon>mdi-close</v-icon>
+                            </v-btn>
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{ strat.id }}</v-list-item-subtitle>
+                    </v-list-item-content>
+                </v-list-item>
+            </v-list>
 		</div>
 	</div>
-	<div class="loading loading-xlg" v-else></div>
+	<div class="loading" v-else>
+		<v-progress-circular indeterminate :size="100" :width="2"/>
+	</div>
 </template>
 
 <script lang="ts">
@@ -60,30 +65,13 @@
 </script>
 
 <style lang="scss" scoped>
-    .list-wrapper {
-        ul {
-            margin-left: 0;
-            margin-right: 0;
-            list-style: none;
-            li {
-                margin-top: 15px;
-                .li-wrapper {
-                    display: inline-block;
-                    padding: 5px 5px 5px 10px;
-                    box-shadow: 0 0 10px 0px rgba(48, 55, 66, 0.1);
-                    .li-text,
-                    button {
-                        display: inline-block;
-                        vertical-align: middle;
-                    }
-                    button {
-                        padding: 0 2px;
-                        margin: 2px 5px;
-                        line-height: 1rem;
-                        height: 1.2rem;
-                    }
-                }
-            }
+    .strats {
+        background: transparent;
+        padding: 0 0 15px;
+        .list-item {
+            width: 50%;
+            display: inline-flex;
+            padding: 0;
         }
     }
 </style>
