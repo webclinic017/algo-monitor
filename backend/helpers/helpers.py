@@ -4,6 +4,12 @@ import zipfile
 import os
 import io
 import json
+import glob
+
+def zipdir_glob(path, ziph):
+	# ziph is zipfile handle
+	for f in glob.glob(path):
+		ziph.write(os.path.abspath(f), os.path.basename(f), zipfile.ZIP_DEFLATED)
 
 def zipdir(out_path, dir_path):
     with zipfile.ZipFile(out_path, 'w', zipfile.ZIP_DEFLATED) as zipf:

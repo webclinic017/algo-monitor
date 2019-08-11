@@ -39,10 +39,11 @@ def upload():
     filename = secure_filename(file.filename)
     strat_id = str(uuid.uuid4())
     name = request.form['strat_name']
+    description = request.form['strat_description']
     entry_path = request.form['entry_path']
     params = json.loads(request.form['params'])
     
-    strat = Strat(strat_id,name,params,entry_path)
+    strat = Strat(strat_id,name,description,params,entry_path)
 
     thread = Thread(target=save_post_strat,args=(file.read(), strat))
     thread.setName(f'{strat.name} : {strat.id}')

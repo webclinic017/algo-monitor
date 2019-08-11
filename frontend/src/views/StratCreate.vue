@@ -3,20 +3,26 @@
 		<v-form>
 			<v-container grid-list-lg fluid>
 				<v-layout wrap>
-					<v-flex xs12 md6>
+					<v-flex xs12 md4>
 						<v-text-field
 							v-model="stratName"
 							label="Nome da Estratégia"
-							required
-						></v-text-field>
+							required/>
 					</v-flex>
-					<v-flex xs12 md6>
+					<v-flex xs12 md4>
+						<v-textarea
+							v-model="stratDescription"
+							label="Descrição"
+							no-resize
+							rows="1"/>
+					</v-flex>
+					<v-flex xs12 md4>
 						<v-text-field
 							v-model="entryPath"
 							label="Arquivo de Entrada"
 							:hint="'Ex.: myFolder/test.py'"
-							required
-						></v-text-field>
+							persistent-hint
+							required/>
 					</v-flex>
 					<v-flex xs12>
 						<label class="form-label">Parâmetros</label>
@@ -52,9 +58,10 @@
 	export default class StratCreate extends Vue {
 		private editor!: any;
 		private stratName: string = '';
+		private stratDescription: string = '';
 		private entryPath: string = '';
 		private fileName: string = '';
-		private stratParams: any = null;
+		private stratParams: object | null = null;
 		private savingStrat: boolean = false;
 
 		getInputFileName(input: HTMLInputElement) {
@@ -86,6 +93,7 @@
 				this.savingStrat = true;
 				try {
 					formData.append('strat_name', this.stratName)
+					formData.append('strat_description', this.stratDescription)
 					formData.append('entry_path', this.entryPath)
 					formData.append('params', JSON.stringify(this.stratParams));
 					formData.append('file', file!.files![0]);

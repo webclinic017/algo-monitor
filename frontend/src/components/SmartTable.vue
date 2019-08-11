@@ -22,6 +22,7 @@
                 :current-page="page"
                 :sort-by.sync="sortBy"
                 :sort-desc.sync="sortDesc"
+                :sort-compare-options="{ numeric: true }"
                 primary-key="id">
                 <template v-for="(field, index) in fields" :slot="field" slot-scope="data">
                     <!-- <div v-if="isLabel(field)" :key="index">

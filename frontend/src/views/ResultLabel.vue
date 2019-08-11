@@ -15,7 +15,8 @@
 				</v-expansion-panel>
 			</v-expansion-panels>
 			<SmartTable :items="results" :tableId="label" @sortedItems="sortedItemsUpdate"/>
-			<v-btn color="error mt-7" @click="deleteAll" :disabled="deletingResults">Excluir Todos</v-btn>
+			<v-btn class="mt-7" color="primary" @click="downloadAll" :disabled="processing">Download</v-btn>
+			<v-btn class="mt-7 ml-5" color="error" @click="deleteAll" :disabled="processing">Excluir Todos</v-btn>
 		</div>
 	</div>
 	<div class="loading" v-else>
@@ -39,18 +40,31 @@
 		}
 	})
 	export default class ResultLabel extends Vue {
-		private label: string | null = null;
+		private label!: string;
 		private results: any[] | null = null;
-		private deletingResults: boolean = false;
+		private processing: boolean = false;
 		private sortedItems: string[] = [];
 		
 		async created() {
 			this.label = this.$route.params.label;
 			this.results = (await axios.get(`/api/results/label/${this.label}`)).data;
 		}
+
+		async downloadAll() {
+			this.processing = true;
+            try {
+				// let success = await axios.get(`/api/results/download/label/${encodeURIComponent(this.label)}`).then(r => r.data);
+				window.open(`/api/results/download/label/${this.label}`);
+            } catch (error) {
+				this.$toasted.show('Erro ao baixar resultados!', {
+					type: 'error'
+				}).goAway(2000);
+            }
+			this.processing = false;
+		}
 		
 		async deleteAll() {
-			this.deletingResults = true;
+			this.processing = true;
             try {
                 let success = await axios.post('/api/results/delete/all', {'label': this.label}).then(r => r.data);
 				this.$toasted.show('Resultados excluídos!').goAway(2000);
@@ -60,7 +74,7 @@
 					type: 'error'
 				}).goAway(2000);
             }
-			this.deletingResults = false;
+			this.processing = false;
 		}
 
 		sortedItemsUpdate(items) {

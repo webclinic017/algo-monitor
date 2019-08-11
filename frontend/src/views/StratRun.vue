@@ -27,6 +27,14 @@
 							required
 						></v-text-field>
 					</v-flex>
+					<v-flex xs12 v-show="selectedId" v-if="stratDescription">
+						<v-textarea
+							v-model="stratDescription"
+							label="Descrição"
+							readonly
+							auto-grow
+							rows="1"/>
+					</v-flex>
 					<v-flex xs12 v-show="selectedId">
 						<label class="form-label">Parâmetros</label>
 						<JsonEditorSchemaGroup
@@ -63,6 +71,7 @@
 		private strats: any[] | null = null
 		private selectedId: any = null;
 		private selectedStrat: any = null;
+		private stratDescription: any = '';
 		private stratLabel: any = '';
 		private startingStrat: boolean = false;
 
@@ -80,6 +89,7 @@
 
 		onStratSelect() {
 			this.selectedStrat = this.strats!.reduce((r,e) => e.id == this.selectedId ? e : r, null);
+			this.stratDescription = this.selectedStrat.description;
 			this.stratParams = this.selectedStrat.params;
 		}
 

@@ -1,5 +1,5 @@
 <template>
-    <v-navigation-drawer app class="sidebar" v-model="drawer">
+    <v-navigation-drawer app class="sidebar" :value="value" @input="$emit('input', $event)">
         <v-list-item>
             <v-list-item-content>
                 <v-list-item-title class="title">
@@ -65,7 +65,7 @@
     
     @Component({})
 	export default class VSidebar extends Vue {
-        @Prop() drawer!: boolean;
+        @Prop() value!: boolean;
     }
 </script>
 

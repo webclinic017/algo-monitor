@@ -7,7 +7,8 @@
 		</EmptyCard>
 		<div class="viewer-wrapper" v-else>
 			<JsonEditorSchema :jsonParams="result ? result : '{}'" :readOnly="true"/>
-			<v-btn class="mt-5" color="error" @click="deleteResult" :disabled="deletingResult">Excluir</v-btn>
+			<v-btn class="mt-5" color="primary" @click="downloadResult" :disabled="processing">Download</v-btn>
+			<v-btn class="mt-5 ml-5" color="error" @click="deleteResult" :disabled="processing">Excluir</v-btn>
 		</div>
 	</div>
 	<div class="loading" v-else>
@@ -28,18 +29,32 @@
 		}
 	})
 	export default class ResultId extends Vue {
+		private id!: string;
 		private result: any = null;
 		private fetched: boolean = false;
-		private deletingResult: boolean = false;
+		private processing: boolean = false;
 
 		async created() {
-			const id = this.$route.params.id;
-			this.result = (await axios.get(`/api/results/id/${id}`)).data;
+			this.id = this.$route.params.id;
+			this.result = (await axios.get(`/api/results/id/${this.id}`)).data;
 			this.fetched = true;
 		}
 
+		async downloadResult() {
+			this.processing = true;
+            try {
+				// let success = await axios.get(`/api/results/download/id/${this.id}`).then(r => r.data);
+				window.open(`/api/results/download/id/${this.id}`);
+            } catch (error) {
+				this.$toasted.show('Erro ao baixar resultado!', {
+					type: 'error'
+				}).goAway(2000);
+            }
+			this.processing = false;
+		}
+
 		async deleteResult() {
-			this.deletingResult = true;
+			this.processing = true;
 			try {
 				let success = (await axios.post('/api/results/delete/', {result_id: this.result['id']})).data;
 				this.$toasted.show('Resultado excluído!').goAway(2000);
@@ -50,7 +65,7 @@
 					type: 'error'
 				}).goAway(2000);
 			}
-			this.deletingResult = false;
+			this.processing = false;
 		}
 	}
 </script>

@@ -8,6 +8,7 @@ import StratRun from './views/StratRun.vue'
 import StratCreate from './views/StratCreate.vue'
 import ProcessStatus from './views/ProcessStatus.vue'
 import StratList from './views/StratList.vue'
+import NotFound from './views/NotFound.vue'
 
 Vue.use(Router)
 
@@ -78,7 +79,9 @@ export default new Router({
         title: 'Listar Estratégias'
       },
       component: StratList
-    }
+    },
+    { path: '/404', component: NotFound },
+    { path: '*', redirect: '/404' },
     // {
     //   path: '/about',
     //   name: 'about',

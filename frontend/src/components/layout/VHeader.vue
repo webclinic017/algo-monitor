@@ -1,6 +1,6 @@
 <template>
     <v-app-bar app class="header">
-        <v-app-bar-nav-icon @click.stop="drawerClick"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon @click.stop="$emit('input', !value)"></v-app-bar-nav-icon>
 
         <v-toolbar-title>{{ this.$route.meta.title }}</v-toolbar-title>
         
@@ -13,22 +13,15 @@
 </template>
 
 <script lang="ts">
-    import { Component, Vue } from 'vue-property-decorator';
+    import { Component, Vue, Prop } from 'vue-property-decorator';
     
     @Component({})
 	export default class VHeader extends Vue {
-        private drawer!: boolean;
+        @Prop() value!: boolean;
 
         mounted() {
-            this.drawer = window.innerWidth > 600;
-            this.$emit('drawerClick', this.drawer);
-            if (localStorage.darkTheme) (<any>this).$vuetify.theme.dark = true;
+            if (JSON.parse(localStorage.darkTheme)) (<any>this).$vuetify.theme.dark = true;
             else (<any>this).$vuetify.theme.dark = false;
-        }
-
-        drawerClick() {
-            this.drawer = !this.drawer;
-            this.$emit('drawerClick', this.drawer);
         }
         
         switchTheme() {

@@ -1,7 +1,7 @@
 <template>
 	<v-app class="v-app">
-		<VSidebar :drawer="drawer"/>
-		<VHeader @drawerClick="drawer = $event"/>
+		<VSidebar v-model="drawer"/>
+		<VHeader v-model="drawer"/>
 
 		<!-- Sizes your content based upon application components -->
 		<v-content class="v-content">

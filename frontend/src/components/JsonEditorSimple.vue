@@ -50,6 +50,7 @@
 				// 'id': null
 			};
 			this.editor = new JSONEditor(container, options, initialData);
+			this.$emit('jsonUpdate', {}, true);
 		}
     }
 </script>
