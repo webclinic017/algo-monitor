@@ -8,7 +8,7 @@
 				Tente <router-link :to="{name:'strat-create'}">criar</router-link> uma nova estratégia.
 			</template>
 		</EmptyCard>
-		<v-form>
+		<v-form v-else>
 			<v-container grid-list-lg fluid>
 				<v-layout wrap>
 					<v-flex xs12 md6>
