@@ -70,27 +70,28 @@ for tkr in tickers: # para cada ticker
         cfg_macds = [[12,26],[50,200]]
         cfg_dropout = [0.2,0.5,0.75]
     
-        cfgs = [
-            {
-                'pred_offset': h.get_random(cfg_pred_offset),
-                'full_data': True, #np.random.randint(2) == 0,
-                'prev_range': h.get_random(cfg_prev_range),
-                'sample_size': h.get_random(cfg_sample_size),
-                'test_size': 0.2,#h.get_random(cfg_test_size),
-                'epochs': h.get_random(cfg_epochs),
-                'batchs': h.get_random(cfg_batchs),
-                'nodes': h.get_random(cfg_nodes),
-                'emas': h.remove_random_list(cfg_emas),
-                'pocids': h.remove_random_list(cfg_pocids),
-                'macds': h.remove_random_list(cfg_macds),
-                'rsis': [14],
-                'extra_layers': 0,#np.random.randint(2),
-                'dropout': h.get_random(cfg_dropout)
-            }
-        ]
+        cfgs =[]
+        default_cgf = {
+            'pred_offset': h.get_random(cfg_pred_offset),
+            'full_data': np.random.randint(2) == 0,
+            'prev_range': h.get_random(cfg_prev_range),
+            'sample_size': h.get_random(cfg_sample_size),
+            'test_size': 0.2,#h.get_random(cfg_test_size),
+            'epochs': h.get_random(cfg_epochs),
+            'batchs': h.get_random(cfg_batchs),
+            'nodes': h.get_random(cfg_nodes),
+            'emas': h.remove_random_list(cfg_emas),
+            'pocids': h.remove_random_list(cfg_pocids),
+            'macds': dict(enumerate(h.remove_random_list(cfg_macds))),
+            'rsis': [14],
+            'extra_layers': 0,#np.random.randint(2),
+            'dropout': h.get_random(cfg_dropout)
+        }
+        for cfg in config_list:
+            cfgs.append({**cfg, **default_cgf})
         
         for c in cfgs: # para cada configuração (fará média com todas cfgs - ensemble)
-            macds_config = c['macds']
+            macds_config = list(c['macds'].values())
 
             date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
             
@@ -326,6 +327,7 @@ for tkr in tickers: # para cada ticker
                         "real": [pred_data['Min'], pred_data['Max']],		# array com os valores reais (Ex.: para um algoritmo que prevê a abertura do dia seguinte, na lista pode constar o preço real da abertura, para comparação)
                         "pred": avg_preds,		# array com os valores da previsão
                         "metrics": {			# campo livre para salvar as métricas do algoritmo (Ex. MAE, MAPE, Accuracy...)
+                            'ticker': tkr,
                             'poor_data': poor_data,
                             'raw': metrics,
                             'avg_loss': avg_loss,

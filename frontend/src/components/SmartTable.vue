@@ -1,11 +1,11 @@
 <template>
-    <div class="smart-table">
+    <div class="smart-table" id="scrollTo">
         <div>
             <span style="display: inline-block">
                 <MultiSelect class="columns-select" label="Filtrar Colunas" :selectId="tableId + '_table'" :items="flattenItemsKeys" v-model="selectedItems"/>
             </span>
             <span style="display: inline-block;">
-                <v-btn text icon @click="tableStacked = !tableStacked">
+                <v-btn text icon @click="switchTableStacked">
                     <v-icon>mdi-table</v-icon>
                 </v-btn>
             </span>
@@ -41,7 +41,8 @@
             v-model="page"
             :length="numPages"
             total-visible="7"
-            v-if="numPages > 1"/>
+            v-if="numPages > 1"
+            v-scroll-to="{target:'#scrollTo',offset:0}"/>
     </div>
 </template>
 
@@ -50,6 +51,7 @@
     import FlattenObject from '../helpers/flattenObject';
     import BetterCast from '../helpers/betterCast';
     import MultiSelect from '../components/MultiSelect.vue';
+    import VScrollTo from '../directives/scroll.directive';
 
     import _ from 'lodash';
     import { TablePlugin } from 'bootstrap-vue'
@@ -59,12 +61,15 @@
 	@Component({
         components: {
             MultiSelect
+        },
+        directives: {
+            VScrollTo
         }
     })
 	export default class SmartTable extends Vue {
         @Prop() items!: any[];
         @Prop() tableId!: string;
-
+        
         private selectedItems: string[] = [];
         private sortBy: string = 'id';
         private sortDesc: boolean = false;
@@ -73,10 +78,13 @@
         private tableStacked: boolean = false;
 
         mounted() {
-            let items = localStorage.getItem(this.tableId);
-            if (items) {
-                this.selectedItems = JSON.parse(items);
-            }
+            let selectedItems = localStorage.getItem(this.tableId);
+            if (selectedItems)
+                this.selectedItems = JSON.parse(selectedItems);
+            
+            let tableStacked = localStorage.getItem(this.tableId + '_stacked');
+            if (tableStacked)
+                this.tableStacked = JSON.parse(tableStacked);
         }
 
         @Watch('sortBy', {
@@ -149,6 +157,11 @@
         encodeUri(label) {
             return encodeURIComponent(label);
         }
+
+        switchTableStacked() {
+            this.tableStacked = !this.tableStacked;
+            localStorage.setItem(this.tableId + '_stacked', JSON.stringify(this.tableStacked));
+        }
     }
 </script>
 
@@ -158,6 +171,7 @@
         @import 'node_modules/bootstrap/scss/tables';
         @import 'node_modules/bootstrap-vue/src/components/table';
         .table {
+            color: inherit;
             thead {
                 th {
                     user-select: none;
@@ -169,6 +183,12 @@
                         left: 0;
                     }
                 }
+            }
+            tr:hover {
+                color: inherit !important;
+            }
+            &.b-table-stacked > tbody > tr > :first-child {
+                border-top-width: 10px !important;
             }
         }
     }

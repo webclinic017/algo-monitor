@@ -64,7 +64,8 @@ def get_strat(strat_id: str):
     strat_path_src = f'{strat_path}/src'
 
     if not os.path.isdir(strat_path_src):
-        ProcessManager.downloading_add(strat.id)
+        process_id = f'{strat.name} : {strat.id}'
+        ProcessManager.downloading_add(process_id)
 
         temp_path = f'public/temp_{strat.id}.zip'
 
@@ -81,7 +82,7 @@ def get_strat(strat_id: str):
                 os.remove(temp_path)
             delete_strat_local(strat.id)
 
-        ProcessManager.downloading_update_complete(strat.id)
+        ProcessManager.downloading_update_complete(process_id)
 
     return strat
 

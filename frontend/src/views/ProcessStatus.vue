@@ -93,7 +93,7 @@
             this.processList = processList;
             this.uploadList = uploadList;
             this.downloadList = downloadList;
-
+            
             this.processList!.forEach(e => {
                 if (e.start) {
                     var ms = moment().diff(moment(`${e.start}Z`));

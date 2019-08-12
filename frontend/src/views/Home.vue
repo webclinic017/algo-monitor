@@ -7,8 +7,8 @@
 			Após o inicio da execução, é possível monitorar o andamento do algoritmo, desde sua adição na fila de execução, enquanto aguarda outros processos, até o momento em que há a apresentação dos resultados, seguida pelo fim da atividade.
 		</p>
 
-		<br>
-		<h4 class="subtitle">
+		<div class="divider"></div>
+		<h4>
 			Criação
 		</h4>
 		<p>
@@ -19,7 +19,10 @@
 		</p>
 		<dl>
 			<dt>Nome da Estratégia</dt>
-			<dd>Nome do algoritmo criado</dd>
+			<dd>Nome do algoritmo criado.</dd>
+
+			<dt>Descrição da Estratégia</dt>
+			<dd>Texto descritivo.</dd>
 			
 			<dt>Arquivo de Entrada</dt>
 			<dd>
@@ -111,7 +114,7 @@
 		</dl>
 
 		<br>
-		<h5>
+		<h5 style="font-weight: bold;">
 			Template de Código
 		</h5>
 		<p>
@@ -152,8 +155,8 @@ with open(f'result_{result_id}.json', 'w') as file:
 	file.write(json.dumps(result))
 </pre>
 
-		<br>
-		<h4 class="subtitle">
+		<div class="divider"></div>
+		<h4>
 			Execução
 		</h4>
 		<p>
@@ -181,16 +184,16 @@ with open(f'result_{result_id}.json', 'w') as file:
 			</dd>
 		</dl>
 
-		<br>
-		<h4 class="subtitle">
+		<div class="divider"></div>
+		<h4>
 			Processos
 		</h4>
 		<p>
 			Após o inicio da execução, esta pode ser acompanhada na <router-link :to="{name:'process'}">página de processos</router-link>.
 		</p>
 
-		<br>
-		<h4 class="subtitle">
+		<div class="divider"></div>
+		<h4>
 			Resultados
 		</h4>
 		<p>

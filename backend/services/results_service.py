@@ -97,6 +97,7 @@ def dump_local_results(run_id,strat_id):
         results = read_local_results(run_id=run_id)
         for r in results: save_result(r)
         delete_local_results(run_id=run_id)
-    except:
+    except Exception as e:
         delete_local_results(strat_id=strat_id)
         print(f'---------- INVALID RESULT (run: {run_id}) (strat: {strat_id}) ----------')
+        print(e)

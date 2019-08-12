@@ -303,6 +303,7 @@ for tkr in tickers: # para cada ticker
                         "real": [pred_data['close']],		# array com os valores reais (Ex.: para um algoritmo que prevê a abertura do dia seguinte, na lista pode constar o preço real da abertura, para comparação)
                         "pred": [avg_preds],		# array com os valores da previsão
                         "metrics": {			# campo livre para salvar as métricas do algoritmo (Ex. MAE, MAPE, Accuracy...)
+                            'ticker': tkr,
                             'poor_data': poor_data,
                             'raw': metrics,
                             'avg_loss': avg_loss,
