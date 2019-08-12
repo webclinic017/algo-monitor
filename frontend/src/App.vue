@@ -184,6 +184,10 @@
 		padding: 40px 40px !important;
 	}
 
+	.v-menu__content {
+		z-index: 4 !important;
+	}
+
 	.empty {
 		background: transparent !important;
 	}

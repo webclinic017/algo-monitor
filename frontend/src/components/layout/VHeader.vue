@@ -32,9 +32,7 @@
 </script>
 
 <style lang="scss" scoped>
-    .header {
-        z-index: 10;
-    }
+    
 </style>
 
 
