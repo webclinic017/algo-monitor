@@ -170,7 +170,8 @@ for tkr in tickers: # para cada ticker
                 df = df[max_crop-config['pred_offset']:]
                 
                 pred_data = {
-                    'pocid': float(df.loc[df.index[-1], f'Up Future {config["pred_offset"]}']) if test else float('nan')
+                    'pocid': float(df.loc[df.index[-1], f'Up Future {config["pred_offset"]}']) if test else float('nan'),
+                    'close': float(df_init.loc[df_init.index[-1], 'Close'])
                 }
                 
                 # Scale
@@ -330,7 +331,8 @@ for tkr in tickers: # para cada ticker
                             'raw': metrics,
                             'avg_loss': avg_loss,
                             'avg_acc': avg_acc,
-                            'pred_std': [std_preds]
+                            'pred_std': [std_preds],
+                            'close_reference': pred_data['close']
                         }
                     }
                 }
