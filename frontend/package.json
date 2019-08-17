@@ -19,6 +19,7 @@
     "spectre.css": "^0.5.8",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
+    "vue-fake-scroll": "^1.0.3",
     "vue-form-generator": "^2.3.4",
     "vue-good-table": "^2.17.3",
     "vue-google-charts": "^0.3.2",

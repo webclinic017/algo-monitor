@@ -182,6 +182,9 @@
 
 	.v-container {
 		padding: 40px 40px !important;
+		@media (max-width: 600px) {
+			padding: 40px 15px !important;
+		}
 	}
 
 	.v-menu__content {

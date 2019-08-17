@@ -1,11 +1,13 @@
 <template>
     <div class="chart">
         <MultiSelect class="chart-select" label="Selecionar Colunas" :selectId="chartId + '_chart'" :items="flattenItemsKeys" v-model="selectedItems" />
-        <GChart
-            type="LineChart"
-            :data="chartData"
-            :options="chartOptions"
-            v-if="chartData.length > 0"/>
+        <div v-if="chartData.length > 0">
+            <GChart
+                type="LineChart"
+                :data="chartData"
+                :options="chartOptions"
+                v-if="resize"/>
+        </div>
         <div v-else>
             Nenhuma coluna selecionada
         </div>
@@ -31,6 +33,7 @@
         @Prop() items!: any[];
         @Prop() chartId!: string;
         selectedItems: string[] = [];
+        resize: boolean = true;
 
         chartOptions: object = {
             // title: 'Resultados',
@@ -51,26 +54,67 @@
             }
         }
 
+        mounted() {
+            window.addEventListener('resize', this.resizeHandler);
+        }
+
+        unmounted() {
+            window.removeEventListener('resize', this.resizeHandler);
+        }
+
         get flattenItemsKeys() {
-            return _.union(...this.items.map(e => Object.keys(e)));
+            return _.union(...this.items.map(e => {
+                let validColumns = [];
+                for (let k in e)
+                    if (BetterCast.isNumber(e[k])) validColumns.push(k);
+                return validColumns;
+            }));
         }
 
         get chartData() {
             if (this.selectedItems.length == 0) return [];
 
             let data = <any[]>this.items.map(e => _.pickBy(e, (value, key) => this.selectedItems.indexOf(key) > -1));
-            
-            let chartData: any[] = [['id']];
-            data.forEach((e,i) => {
-                chartData[0] = _.union(chartData[0], Object.keys(e));
-                chartData[i+1] = [i+1, ...Object.values(e)];
+            let chartData = this.objectArrayToGoogleChartGrid(data, this.selectedItems);
+            console.log(chartData);
+            return chartData;
+        }
+
+        resizeHandler() {
+            this.resize = false;
+            let resizeFunc = () => this.resize = true;
+            setTimeout(resizeFunc.bind(this),500);
+        }
+
+        objectArrayToGoogleChartGrid(obj: object[], allKeys: string[]) {
+            var obj2 = {}
+            for (let e of obj) {
+                for (let k of allKeys) {
+                    if (!(k in obj2)) obj2[k] = [];
+                    if (k in e) obj2[k].push(e[k])
+                    else obj2[k].push(null)
+                }
+            }
+
+            var obj3 = [["id"]];
+            Object.keys(obj2).forEach((e,i) => {
+                obj3[0].push(e);
+                obj2[e].forEach((e2,i2) => {
+                    if (obj3[i2+1] == undefined) obj3[i2+1] = [i2+1]
+                    obj3[i2+1][i+1] = e2
+                });
             });
 
-            return chartData;
+            // var obj4 = obj3.filter(e => e.slice(1).reduce((r,v) => r || v != null, false));
+
+            return obj3;
         }
     }
 </script>
 
 <style lang="scss" scoped>
-
+    .chart-loading {
+        display: block;
+        margin: 0 auto;
+    }
 </style>

@@ -1,17 +1,18 @@
 <template>
     <div class="smart-table" id="scrollTo">
-        <div>
-            <span style="display: inline-block">
+        <div class="filter-wrapper">
+            <span class="filter-item select-wrapper">
                 <MultiSelect class="columns-select" label="Filtrar Colunas" :selectId="tableId + '_table'" :items="flattenItemsKeys" v-model="selectedItems"/>
             </span>
-            <span style="display: inline-block;">
+            <span class="filter-item">
                 <v-btn text icon @click="switchTableStacked">
                     <v-icon>mdi-table</v-icon>
                 </v-btn>
             </span>
         </div>
+        <VueFakeScroll ref="fakeScroll" class="fake-scroll" :scroll-width="tableWidth" :scroll-height="1" @update="scrollUpdate"/>
         <div class="boot-table-wrapper">
-            <b-table class="boot-table"
+            <b-table ref="table" class="boot-table"
                 :responsive="!tableStacked"
                 :striped="!tableStacked"
                 :hover="!tableStacked"
@@ -54,13 +55,15 @@
     import VScrollTo from '../directives/scroll.directive';
 
     import _ from 'lodash';
-    import { TablePlugin } from 'bootstrap-vue'
+    import { TablePlugin } from 'bootstrap-vue';
+    import VueFakeScroll from 'vue-fake-scroll';
 
     Vue.use(TablePlugin)
     
 	@Component({
         components: {
-            MultiSelect
+            MultiSelect,
+            VueFakeScroll
         },
         directives: {
             VScrollTo
@@ -76,8 +79,21 @@
         private page: number = 1;
         private perPage: number = 10;
         private tableStacked: boolean = false;
+        private tableWidth: number = 0;
+
+        private scrollWatcherThrottle!: Function;
+        private scrollUpdateThrottle!: Function;
+
+        created() {
+            this.scrollWatcherThrottle = _.throttle(() => this.fakeScrollElem.scrollLeft = this.tableElem.scrollLeft, 100);
+            this.scrollUpdateThrottle = _.throttle(update => this.tableElem.scrollLeft = update.scrollLeft, 50);
+        }
 
         mounted() {
+            this.tableElem.addEventListener('scroll', this.scrollWatcher);
+            window.addEventListener('resize', this.updateWidth);
+            this.updateWidth();
+
             let selectedItems = localStorage.getItem(this.tableId);
             if (selectedItems)
                 this.selectedItems = JSON.parse(selectedItems);
@@ -85,6 +101,11 @@
             let tableStacked = localStorage.getItem(this.tableId + '_stacked');
             if (tableStacked)
                 this.tableStacked = JSON.parse(tableStacked);
+        }
+
+        unmounted() {
+            this.tableElem.removeEventListener('scroll', this.scrollWatcher);
+            window.removeEventListener('resize', this.updateWidth);
         }
 
         @Watch('sortBy', {
@@ -99,6 +120,12 @@
         })
         onSortDescChange() {
             this.$emit('sortedItems', this.getSortedItems());
+        }
+
+        @Watch('selectedItems')
+        onSelectChange() {
+            console.log(123);
+            this.updateWidth();
         }
         
         getSortedItems() {
@@ -136,7 +163,15 @@
         }
 
         get sortableFields() {
-            return this.fields.map(e => {return { 'key': e, 'sortable': true }});
+            return this.fields.map(e => {return { 'key': e, 'label': e, 'sortable': true }});
+        }
+
+        get fakeScrollElem() {
+            return (<HTMLElement>(<any>this.$refs.fakeScroll).$el);
+        }
+
+        get tableElem() {
+            return (<HTMLElement>(<any>this.$refs.table).$el);
         }
 
         clearFilter() {
@@ -144,10 +179,6 @@
                 this.selectedItems = [];
                 localStorage.setItem(this.tableId, JSON.stringify(this.selectedItems));
             });
-        }
-
-        onSelectChange(items) {
-            localStorage.setItem(this.tableId, JSON.stringify(items));
         }
 
         // isLabel(txt) {
@@ -161,6 +192,26 @@
         switchTableStacked() {
             this.tableStacked = !this.tableStacked;
             localStorage.setItem(this.tableId + '_stacked', JSON.stringify(this.tableStacked));
+        }
+
+        updateWidth() {
+            this.$nextTick(() => {
+                this.tableWidth = this.tableElem.scrollWidth;
+                if (this.tableElem.scrollWidth == this.tableElem.offsetWidth) {
+                    this.fakeScrollElem.style.display = 'none';
+                }
+                else {
+                    this.fakeScrollElem.style.display = '';
+                }
+            });
+        }
+
+        scrollWatcher() {
+            this.scrollWatcherThrottle();
+        }
+
+        scrollUpdate(update) {
+            this.scrollUpdateThrottle(update);
         }
     }
 </script>
@@ -192,8 +243,30 @@
             }
         }
     }
-    .columns-select {
-        width: 100%;
-        max-width: 300px;
+
+    .filter-wrapper {
+        .filter-item {
+            display: inline-block;
+            &.select-wrapper {
+                width: 100%;
+                max-width: 300px;
+                @media (max-width: 600px) {
+                    max-width: none;
+                }
+                .columns-select {
+                    width: 100%;
+                }
+            }
+        }
+    }
+
+    .fake-scroll ::v-deep {
+        .resize-observer {
+            height: 1px;
+        }
+
+        @media (max-width: 600px), (hover: none) {
+            display: none;
+        }
     }
 </style>

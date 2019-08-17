@@ -61,9 +61,22 @@
             width: 100%;
             justify-content: flex-end;
             flex-wrap: nowrap;
-            .v-chip.v-size--default {
-                height: 28px;
+            .v-chip {
+                // display: none;
+                .v-size--default {
+                    height: 28px;
+                }
+            }
+            input {
+                transition: .5s min-width;
+                &:focus {
+                    min-width: 75px;
+                    max-width: 100%;
+                }
             }
         }
+        // .v-input__append-inner {
+        //     cursor: pointer;
+        // }
     }
 </style>

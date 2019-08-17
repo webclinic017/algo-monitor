@@ -6,6 +6,7 @@
 			</template>
 		</EmptyCard>
 		<div class="results-wrapper" v-else>
+			<h3 class="label-title">{{ label }}</h3>
 			<v-expansion-panels class="mb-8">
 				<v-expansion-panel>
 					<v-expansion-panel-header>Gráfico</v-expansion-panel-header>
@@ -46,8 +47,9 @@
 		private sortedItems: string[] = [];
 		
 		async created() {
-			this.label = this.$route.params.label;
+			this.label = decodeURIComponent(this.$route.params.label);
 			this.results = (await axios.get(`/api/results/label/${this.label}`)).data;
+			console.log(this.label);
 		}
 
 		async downloadAll() {
@@ -84,6 +86,10 @@
 </script>
 
 <style lang="scss">
+	.label-title {
+		margin-bottom: 1.75rem;
+	}
+
 	.results-chart {
 		padding-bottom: 30px;
 	}
@@ -91,5 +97,8 @@
 	.chart-select {
         width: 100%;
         max-width: 300px;
+        @media (max-width: 600px) {
+            max-width: none;
+        }
 	}
 </style>

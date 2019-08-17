@@ -6,6 +6,7 @@
 			</template>
 		</EmptyCard>
 		<div class="viewer-wrapper" v-else>
+			<h3 class="id-title">Id: {{ id }}</h3>
 			<JsonEditorSchema :jsonParams="result ? result : '{}'" :readOnly="true"/>
 			<v-btn class="mt-5" color="primary" @click="downloadResult" :disabled="processing">Download</v-btn>
 			<v-btn class="mt-5 ml-5" color="error" @click="deleteResult" :disabled="processing">Excluir</v-btn>
@@ -71,6 +72,10 @@
 </script>
 
 <style lang="scss" scoped>
+	.id-title {
+		margin-bottom: 1.75rem;
+	}
+
 	.viewer-wrapper {
 		button {
 			margin-top: 10px;
