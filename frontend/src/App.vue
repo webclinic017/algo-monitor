@@ -242,4 +242,8 @@
 	.empty .empty-action {
 		margin-top: .8rem;
 	}
+
+	.v-list-item {
+		user-select: auto;
+	}
 </style>
