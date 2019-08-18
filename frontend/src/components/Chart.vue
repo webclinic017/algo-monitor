@@ -64,7 +64,7 @@
 
         get flattenItemsKeys() {
             return _.union(...this.items.map(e => {
-                let validColumns = [];
+                let validColumns: string[] = [];
                 for (let k in e)
                     if (BetterCast.isNumber(e[k])) validColumns.push(k);
                 return validColumns;
@@ -73,10 +73,8 @@
 
         get chartData() {
             if (this.selectedItems.length == 0) return [];
-
             let data = <any[]>this.items.map(e => _.pickBy(e, (value, key) => this.selectedItems.indexOf(key) > -1));
             let chartData = this.objectArrayToGoogleChartGrid(data, this.selectedItems);
-            console.log(chartData);
             return chartData;
         }
 

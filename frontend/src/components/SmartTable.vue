@@ -124,7 +124,6 @@
 
         @Watch('selectedItems')
         onSelectChange() {
-            console.log(123);
             this.updateWidth();
         }
         
