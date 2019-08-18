@@ -5,7 +5,6 @@
     "config_iterations": 3,
     "tickers": ["BOVA11"],
     "pred_offset": 1,
-    "full_data": true,
     "prev_range": 50,
     "sample_size": 2500,
     "test_size": 0.2,

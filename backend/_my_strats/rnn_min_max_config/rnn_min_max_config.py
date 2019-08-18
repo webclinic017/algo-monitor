@@ -105,8 +105,8 @@ for tkr in tickers: # para cada ticker
                 else:
                     df_init = get_data(tkr, reset)[0]
                 
-                if not config['full_data']:
-                    df_init = df_init[['Date','Close','Vol','Var']]
+                # if not config['full_data']:
+                #     df_init = df_init[['Date','Close','Vol','Var']]
                 
                 reset = False
                 

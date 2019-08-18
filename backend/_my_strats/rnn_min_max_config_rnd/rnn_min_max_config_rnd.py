@@ -73,7 +73,7 @@ for tkr in tickers: # para cada ticker
         cfgs =[]
         default_cgf = {
             'pred_offset': h.get_random(cfg_pred_offset),
-            'full_data': np.random.randint(2) == 0,
+            # 'full_data': np.random.randint(2) == 0,
             'prev_range': h.get_random(cfg_prev_range),
             'sample_size': h.get_random(cfg_sample_size),
             'test_size': 0.2,#h.get_random(cfg_test_size),
@@ -123,8 +123,8 @@ for tkr in tickers: # para cada ticker
                 else:
                     df_init = get_data(tkr, reset)[0]
                 
-                if not config['full_data']:
-                    df_init = df_init[['Date','Close','Vol','Var']]
+                # if not config['full_data']:
+                #     df_init = df_init[['Date','Close','Vol','Var']]
                 
                 reset = False
                 
