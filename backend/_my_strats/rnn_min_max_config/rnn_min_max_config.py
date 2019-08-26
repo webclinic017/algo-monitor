@@ -71,253 +71,224 @@ for tkr in tickers: # para cada ticker
         cfg_dropout = [0.2,0.5,0.75]
     
         cfgs = config_list
-        
-        for c in cfgs: # para cada configuração (fará média com todas cfgs - ensemble)
-            macds_config = list(c['macds'].values())
 
-            date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-            
-            guid = uuid.uuid4()
-            
-            preds = []
-            metrics = []
-            durations = []
-            
-            for cfg_i in range(config_iterations): # faça n testes para essa configuração
-                
-                start = time.time()
-                                
-                config = c.copy()
-                max_crop = max(config['emas'] + config['pocids'] + sum(macds_config, []) + config['rsis'])
-                if test: max_crop += config['pred_offset']
-                
-                #pd.read_csv('stocks.csv')
-                #preprocess.investing_csv(tkr, reset)
-                #preprocess.alpha_vantage_api(f"{tkr}.SAO", reset)
-                get_data = lambda tkr, reset: preprocess.yahoo_api(f"{tkr}.SA", reset)
-                get_data_fallback = lambda tkr, reset: preprocess.alpha_vantage_api(f"{tkr}.SAO", reset)
-                if reset:
-                    df_init, poor_data = get_data(tkr, reset)
-                    if poor_data:
-                        df_init_fallback, poor_data_fallback = get_data_fallback(tkr, reset)
-                        if not poor_data_fallback:
-                            df_init = df_init_fallback.copy()
-                else:
-                    df_init = get_data(tkr, reset)[0]
-                
-                # if not config['full_data']:
-                #     df_init = df_init[['Date','Close','Vol','Var']]
-                
-                reset = False
-                
-                if (config['sample_size']+max_crop > len(df_init.index)):
-                    print('*****resizing sample size*****')
-                    config['sample_size'] = len(df_init.index) - max_crop
-                    if config['sample_size'] < 250:
-                        print('*****data size is too small*****')
-                        break
-                    
-                df_init = df_init.head(config['sample_size']+max_crop)
-                df_init = df_init.iloc[::-1]
-                pred_day = '-'.join(df_init.loc[df_init.index[-1], 'Date'].split('.'))
-                
-                # PREPROCESSING
-                
-                df_init['Date'] = list(map(h.cast_date, df_init['Date']))
-                df_init.set_index("Date", inplace=True)
-                
-                emas = []
-                for ema in config['emas']:
-                    emas.append(df_init.loc[:, ['Close']].ewm(span=ema, adjust=False).mean().rename(columns={'Close':f'EMA {ema}'}))
-                df_init = pd.concat([df_init, *emas], axis=1)
-                
-                pocids = []
-                for pocid in config['pocids']:
-                    pocids.append(pd.DataFrame(to_categorical(h.pocid_series(df_init['Close'].shift(pocid), df_init['Close'])), columns=[f'Down {pocid}',f'Up {pocid}']).set_index(df_init.index))
-                    #df_init[f'POCID {pocid}'] = h.pocid_series(df_init['Close'].shift(pocid), df_init['Close'])
-                df_init = pd.concat([df_init, *pocids], axis=1)
-                    
-                for macd in macds_config:
-                    df_init[f'MACD {macd[0]}-{macd[1]}'] = h.macd_series(df_init['Close'], macd[0], macd[1])
-                    
-                for rsi in config['rsis']:
-                    df_init[f'RSI {rsi}'] = h.rsi_series(df_init['Close'], rsi)
+        for offset in cfgs[0]['pred_offset']:
+        
+            for c in cfgs: # para cada configuração (fará média com todas cfgs - ensemble)
+                macds_config = list(c['macds'].values())
 
-                df_init.insert(0, f'Max {config["pred_offset"]}', df_init['Max'].shift(-config['pred_offset']))
-                df_init.insert(0, f'Min {config["pred_offset"]}', df_init['Min'].shift(-config['pred_offset']))
+                date = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
                 
-                pred_data = {
-                    'Min': float(df_init.loc[df_init.index[-1], 'Min']) if test else float('nan'),
-                    'Max': float(df_init.loc[df_init.index[-1], 'Max']) if test else float('nan'),
-                }
+                guid = uuid.uuid4()
                 
-                df = df_init.copy()
+                preds = []
+                metrics = []
+                durations = []
                 
-                df = df[:-config['pred_offset']]
-                df = df[max_crop-config['pred_offset']:]
-                
-                # Scale
-                
-                df.dropna(inplace=True)                
-                
-                x, y = h.create_timeseries(df, config['prev_range'], cfg_num_out)
-                
-                test_size = round(len(x)*config['test_size'])
-                x_test = x[:test_size].copy()
-                y_test = y[:test_size].copy()
-                x_train = x[test_size:].copy()
-                y_train = y[test_size:].copy()
-        
-                scalers = {}
-                for i in range(x_train.shape[2]):
-                    scalers[i] = StandardScaler()
-                    x_train[:, :, i] = scalers[i].fit_transform(x_train[:, :, i])
-        
-                for i in range(x_test.shape[2]):
-                    x_test[:, :, i] = scalers[i].transform(x_test[:, :, i])
+                for cfg_i in range(config_iterations): # faça n testes para essa configuração
                     
-                # MODEL
-                
-                model = Sequential()
-                
-                if config['extra_layers'] == 0:
-                    model.add(LSTM_layer(config['nodes'], input_shape=(x_train.shape[1:]))) # usar return_sequences=True caso o próximo layer seja LSTM
-                else:
-                    model.add(LSTM_layer(config['nodes'], input_shape=(x_train.shape[1:]), return_sequences=True))
-                if not gpu:
-                    model.add(LeakyReLU(alpha=0.05))
-                model.add(Dropout(config['dropout']))
+                    start = time.time()
+                                    
+                    config = c.copy()
+                    max_crop = max(config['emas'] + config['pocids'] + sum(macds_config, []) + config['rsis'])
+                    if test: max_crop += offset
+                    
+                    #pd.read_csv('stocks.csv')
+                    #preprocess.investing_csv(tkr, reset)
+                    #preprocess.alpha_vantage_api(f"{tkr}.SAO", reset)
+                    get_data = lambda tkr, reset: preprocess.yahoo_api(f"{tkr}.SA", reset)
+                    get_data_fallback = lambda tkr, reset: preprocess.alpha_vantage_api(f"{tkr}.SAO", reset)
+                    if reset:
+                        df_init, poor_data = get_data(tkr, reset)
+                        if poor_data:
+                            df_init_fallback, poor_data_fallback = get_data_fallback(tkr, reset)
+                            if not poor_data_fallback:
+                                df_init = df_init_fallback.copy()
+                    else:
+                        df_init = get_data(tkr, reset)[0]
+                    
+                    # if not config['full_data']:
+                    #     df_init = df_init[['Date','Close','Vol','Var']]
+                    
+                    reset = False
+                    
+                    if (config['sample_size']+max_crop > len(df_init.index)):
+                        print('*****resizing sample size*****')
+                        config['sample_size'] = len(df_init.index) - max_crop
+                        if config['sample_size'] < 250:
+                            print('*****data size is too small*****')
+                            break
+                        
+                    df_init = df_init.head(config['sample_size']+max_crop)
+                    df_init = df_init.iloc[::-1]
+                    pred_day = '-'.join(df_init.loc[df_init.index[-1], 'Date'].split('.'))
+                    
+                    # PREPROCESSING
+                    
+                    df_init['Date'] = list(map(h.cast_date, df_init['Date']))
+                    df_init.set_index("Date", inplace=True)
+                    
+                    emas = []
+                    for ema in config['emas']:
+                        emas.append(df_init.loc[:, ['Close']].ewm(span=ema, adjust=False).mean().rename(columns={'Close':f'EMA {ema}'}))
+                    df_init = pd.concat([df_init, *emas], axis=1)
+                    
+                    pocids = []
+                    for pocid in config['pocids']:
+                        pocids.append(pd.DataFrame(to_categorical(h.pocid_series(df_init['Close'].shift(pocid), df_init['Close'])), columns=[f'Down {pocid}',f'Up {pocid}']).set_index(df_init.index))
+                        #df_init[f'POCID {pocid}'] = h.pocid_series(df_init['Close'].shift(pocid), df_init['Close'])
+                    df_init = pd.concat([df_init, *pocids], axis=1)
+                        
+                    for macd in macds_config:
+                        df_init[f'MACD {macd[0]}-{macd[1]}'] = h.macd_series(df_init['Close'], macd[0], macd[1])
+                        
+                    for rsi in config['rsis']:
+                        df_init[f'RSI {rsi}'] = h.rsi_series(df_init['Close'], rsi)
+
+                    df_init.insert(0, f'Max {config["pred_offset"]}', df_init['Max'].shift(-offset))
+                    df_init.insert(0, f'Min {config["pred_offset"]}', df_init['Min'].shift(-offset))
+                    
+                    pred_data = {
+                        'Min': float(df_init.loc[df_init.index[-1], 'Min']) if test else float('nan'),
+                        'Max': float(df_init.loc[df_init.index[-1], 'Max']) if test else float('nan'),
+                    }
+                    
+                    df = df_init.copy()
+                    
+                    df = df[:-offset]
+                    df = df[max_crop-offset:]
+                    
+                    # Scale
+                    
+                    df.dropna(inplace=True)                
+                    
+                    x, y = h.create_timeseries(df, config['prev_range'], cfg_num_out)
+                    
+                    test_size = round(len(x)*config['test_size'])
+                    x_test = x[:test_size].copy()
+                    y_test = y[:test_size].copy()
+                    x_train = x[test_size:].copy()
+                    y_train = y[test_size:].copy()
             
-                for i in range(config['extra_layers']):
-                    if i == config['extra_layers'] - 1:
-                        model.add(LSTM_layer(config['nodes'], input_shape=(x_train.shape[1:])))
+                    scalers = {}
+                    for i in range(x_train.shape[2]):
+                        scalers[i] = StandardScaler()
+                        x_train[:, :, i] = scalers[i].fit_transform(x_train[:, :, i])
+            
+                    for i in range(x_test.shape[2]):
+                        x_test[:, :, i] = scalers[i].transform(x_test[:, :, i])
+                        
+                    # MODEL
+                    
+                    model = Sequential()
+                    
+                    if config['extra_layers'] == 0:
+                        model.add(LSTM_layer(config['nodes'], input_shape=(x_train.shape[1:]))) # usar return_sequences=True caso o próximo layer seja LSTM
                     else:
                         model.add(LSTM_layer(config['nodes'], input_shape=(x_train.shape[1:]), return_sequences=True))
                     if not gpu:
                         model.add(LeakyReLU(alpha=0.05))
                     model.add(Dropout(config['dropout']))
-        
-                model.add(Dense(cfg_num_out, activation=None))
                 
-                opt = keras.optimizers.Adam(lr=1e-3, decay=1e-6)
-                
-                model.compile(loss=tf.losses.huber_loss,
-                              optimizer=opt,
-                              metrics=['mae','mape'])
-                
-                h.mkdir_conditional('logs')
-                h.mkdir_conditional('models')
-                tensorboard = TensorBoard(log_dir=f'logs/log_{tkr}_{guid}_{cfg_i}')
-                checkpoint = ModelCheckpoint(filepath=f'models/weights_{guid}.hdf5', verbose=0, save_best_only=True)
-                
-                hist = model.fit(
-                        x_train, y_train,
-                        batch_size=config['batchs'],
-                        epochs=config['epochs'],
-                        validation_data=(x_test, y_test),
-                        callbacks=[checkpoint],#, tensorboard],
-                        verbose=0
-                        )
-                
-                # Get Best
-                model.load_weights(f'models/weights_{guid}.hdf5')
-                os.remove(f'models/weights_{guid}.hdf5')
-                
-                # PRED
-                
-                # y_result = model.predict(x_test)           
-                
-                if test: df_pred_next = df_init[-(config['prev_range']+config['pred_offset']):].drop(df_init.tail(config['pred_offset']).index).copy()
-                else: df_pred_next = df_init[-(config['prev_range']):].copy() # utiliza até ultimo dia para prever dia + pred_offset
-                #else: df_pred_next = df_init[-(config['prev_range']+config['pred_offset']-1):].drop(df_init.tail(config['pred_offset']-1).index).copy() # sempre tenta prever dia + 1
-                x_pred_next, y_pred_next = h.create_timeseries(df_pred_next, config['prev_range'], cfg_num_out, False)
-                for i in range(x_pred_next.shape[2]):
-                    x_pred_next[:, :, i] = scalers[i].transform(x_pred_next[:, :, i])
-                
-                y_result_next = model.predict(x_pred_next)
-                print(y_result_next)
-                print([pred_data['Min'], pred_data['Max']])
-                
-                # REPORT
-                
-                preds.append(y_result_next[0])
-                metrics.append({
-                    'valloss': round(min(hist.history["val_loss"]),5),
-                    'loss': round(min(hist.history["loss"]),5),
-                    'valmae': round(min(hist.history["val_mean_absolute_error"]),3),
-                    'mae': round(min(hist.history["mean_absolute_error"]),3),
-                    'valmape': round(min(hist.history["val_mean_absolute_percentage_error"]),3),
-                    'mape': round(min(hist.history["mean_absolute_percentage_error"]),3)
-                })
-                
-                keras.backend.clear_session()
-                
-                print('\n','-'*10)
-                print('#',tkr,tkr_i,cfg_i)
-                duration = time.time() - start
-                print(f'Duration: {duration}')
-                durations.append(duration)
-                print('Mean duration:',sum(durations)/len(durations))
-                print('-'*10,'\n')
-        
-        if (len(preds) > 0):
-            avg_preds = np.mean(np.array(preds), axis=0).tolist()
-            std_preds = np.std(np.array(preds), axis=0).tolist()
-            avg_loss = float(np.mean([x['valloss'] for x in metrics]))
-            avg_mae = float(np.mean([x['valmae'] for x in metrics]))
-            avg_mape = float(np.mean([x['valmape'] for x in metrics]))
-    
-            # report = {
-            #     'ticker': tkr,
-            #     'type': 'mm',
-            #     'date': date,
-            #     'test': test,
-            #     'config': config,
-            #     'real': [pred_data['Min'], pred_data['Max']],
-            #     'preds': {
-            #         'pred': avg_preds,
-            #         'std': std_preds,
-            #     },
-            #     'durations': {
-            #         'avg_duration': float(np.mean(durations)),
-            #         'raw': durations
-            #     },
-            #     'raw_preds': [x.tolist() for x in preds],
-            #     'metrics': {
-            #         'poor_data': poor_data,
-            #         'raw': metrics,
-            #         'avg_loss': avg_loss,
-            #         'avg_mae': avg_mae,
-            #         'avg_mape': avg_mape,
-            #         'avg_variation': [
-            #             (df[f'Min {config["pred_offset"]}'] - df['Min']).apply(lambda x: abs(x)).mean(),
-            #             (df[f'Max {config["pred_offset"]}'] - df['Max']).apply(lambda x: abs(x)).mean()
-            #         ],
-            #     }
-            # }
+                    for i in range(config['extra_layers']):
+                        if i == config['extra_layers'] - 1:
+                            model.add(LSTM_layer(config['nodes'], input_shape=(x_train.shape[1:])))
+                        else:
+                            model.add(LSTM_layer(config['nodes'], input_shape=(x_train.shape[1:]), return_sequences=True))
+                        if not gpu:
+                            model.add(LeakyReLU(alpha=0.05))
+                        model.add(Dropout(config['dropout']))
             
-            # h.mkdir_conditional('results')
-            # with open(f'results/{tkr}_pred_mm_{pred_day}_{round(time.time())}.json', 'w') as file: file.write(json.dumps(report))
+                    model.add(Dense(cfg_num_out, activation=None))
+                    
+                    opt = keras.optimizers.Adam(lr=1e-3, decay=1e-6)
+                    
+                    model.compile(loss=tf.losses.huber_loss,
+                                optimizer=opt,
+                                metrics=['mae','mape'])
+                    
+                    #h.mkdir_conditional('logs')
+                    h.mkdir_conditional('models')
+                    #tensorboard = TensorBoard(log_dir=f'logs/log_{tkr}_{guid}_{cfg_i}')
+                    checkpoint = ModelCheckpoint(filepath=f'models/weights_{guid}.hdf5', verbose=0, save_best_only=True)
+                    
+                    hist = model.fit(
+                            x_train, y_train,
+                            batch_size=config['batchs'],
+                            epochs=config['epochs'],
+                            validation_data=(x_test, y_test),
+                            callbacks=[checkpoint],#, tensorboard],
+                            verbose=0
+                            )
+                    
+                    # Get Best
+                    model.load_weights(f'models/weights_{guid}.hdf5')
+                    os.remove(f'models/weights_{guid}.hdf5')
+                    
+                    # PRED
+                    
+                    # y_result = model.predict(x_test)           
+                    
+                    if test: df_pred_next = df_init[-(config['prev_range']+offset):].drop(df_init.tail(offset).index).copy()
+                    else: df_pred_next = df_init[-(config['prev_range']):].copy() # utiliza até ultimo dia para prever dia + pred_offset
+                    #else: df_pred_next = df_init[-(config['prev_range']+offset-1):].drop(df_init.tail(offset-1).index).copy() # sempre tenta prever dia + 1
+                    x_pred_next, y_pred_next = h.create_timeseries(df_pred_next, config['prev_range'], cfg_num_out, False)
+                    for i in range(x_pred_next.shape[2]):
+                        x_pred_next[:, :, i] = scalers[i].transform(x_pred_next[:, :, i])
+                    
+                    y_result_next = model.predict(x_pred_next)
+                    print(y_result_next)
+                    print([pred_data['Min'], pred_data['Max']])
+                    
+                    # REPORT
+                    
+                    preds.append(y_result_next[0])
+                    best_index = hist.history["val_loss"].index(min(hist.history["val_loss"]))
+                    metrics.append({
+                        'valloss': round(hist.history["val_loss"][best_index],5),
+                        'loss': round(hist.history["loss"][best_index],5),
+                        'valmae': round(hist.history["val_mean_absolute_error"][best_index],3),
+                        'mae': round(hist.history["mean_absolute_error"][best_index],3),
+                        'valmape': round(hist.history["val_mean_absolute_percentage_error"][best_index],3),
+                        'mape': round(hist.history["mean_absolute_percentage_error"][best_index],3)
+                    })
+                    
+                    keras.backend.clear_session()
+                    
+                    print('\n','-'*10)
+                    print('#',tkr,tkr_i,cfg_i)
+                    duration = time.time() - start
+                    print(f'Duration: {duration}')
+                    durations.append(duration)
+                    print('Mean duration:',sum(durations)/len(durations))
+                    print('-'*10,'\n')
             
+            if (len(preds) > 0):
+                avg_preds = np.mean(np.array(preds), axis=0).tolist()
+                std_preds = np.std(np.array(preds), axis=0).tolist()
+                avg_loss = float(np.mean([x['valloss'] for x in metrics]))
+                avg_mae = float(np.mean([x['valmae'] for x in metrics]))
+                avg_mape = float(np.mean([x['valmape'] for x in metrics]))
 
-            result_id = str(uuid.uuid4())
-            with open(f'result_{result_id}.json', 'w') as file:
-                result = {
-                    "id": result_id,			# id do resultado
-                    "config": cfgs,			# configurações utilizadas pelo algoritmo
-                    "result": {				# resultados do algoritmo, composto por "real", "pred" e "metrics"
-                        "real": [pred_data['Min'], pred_data['Max']],		# array com os valores reais (Ex.: para um algoritmo que prevê a abertura do dia seguinte, na lista pode constar o preço real da abertura, para comparação)
-                        "pred": avg_preds,		# array com os valores da previsão
-                        "metrics": {			# campo livre para salvar as métricas do algoritmo (Ex. MAE, MAPE, Accuracy...)
-                            'ticker': tkr,
-                            'poor_data': poor_data,
-                            'raw': metrics,
-                            'avg_loss': avg_loss,
-                            'avg_mae': avg_mae,
-                            'avg_mape': avg_mape,
-                            'pred_std': std_preds
+                result_id = str(uuid.uuid4())
+                with open(f'result_{result_id}.json', 'w') as file:
+                    result = {
+                        "id": result_id,			# id do resultado
+                        "config": cfgs,			# configurações utilizadas pelo algoritmo
+                        "result": {				# resultados do algoritmo, composto por "real", "pred" e "metrics"
+                            "real": [pred_data['Min'], pred_data['Max']],		# array com os valores reais (Ex.: para um algoritmo que prevê a abertura do dia seguinte, na lista pode constar o preço real da abertura, para comparação)
+                            "pred": avg_preds,		# array com os valores da previsão
+                            "metrics": {			# campo livre para salvar as métricas do algoritmo (Ex. MAE, MAPE, Accuracy...)
+                                'ticker': tkr,
+                                'offset': offset,
+                                'poor_data': poor_data,
+                                'raw': metrics,
+                                'avg_loss': avg_loss,
+                                'avg_mae': avg_mae,
+                                'avg_mape': avg_mape,
+                                'pred_std': std_preds
+                            }
                         }
                     }
-                }
-                print(json.dumps(result))
-                file.write(json.dumps(result))
+                    print(json.dumps(result))
+                    file.write(json.dumps(result))

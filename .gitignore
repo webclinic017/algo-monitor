@@ -5,6 +5,7 @@ backend/public
 __pycache__
 *.log
 *.zip
+*.csv
 package-lock.json
 
 # local env files

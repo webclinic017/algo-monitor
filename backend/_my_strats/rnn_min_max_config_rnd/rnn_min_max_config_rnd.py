@@ -259,13 +259,14 @@ for tkr in tickers: # para cada ticker
                 # REPORT
                 
                 preds.append(y_result_next[0])
+                best_index = hist.history["val_loss"].index(min(hist.history["val_loss"]))
                 metrics.append({
-                    'valloss': round(min(hist.history["val_loss"]),5),
-                    'loss': round(min(hist.history["loss"]),5),
-                    'valmae': round(min(hist.history["val_mean_absolute_error"]),3),
-                    'mae': round(min(hist.history["mean_absolute_error"]),3),
-                    'valmape': round(min(hist.history["val_mean_absolute_percentage_error"]),3),
-                    'mape': round(min(hist.history["mean_absolute_percentage_error"]),3)
+                    'valloss': round(hist.history["val_loss"][best_index],5),
+                    'loss': round(hist.history["loss"][best_index],5),
+                    'valmae': round(hist.history["val_mean_absolute_error"][best_index],3),
+                    'mae': round(hist.history["mean_absolute_error"][best_index],3),
+                    'valmape': round(hist.history["val_mean_absolute_percentage_error"][best_index],3),
+                    'mape': round(hist.history["mean_absolute_percentage_error"][best_index],3)
                 })
                 
                 keras.backend.clear_session()
@@ -284,39 +285,6 @@ for tkr in tickers: # para cada ticker
             avg_loss = float(np.mean([x['valloss'] for x in metrics]))
             avg_mae = float(np.mean([x['valmae'] for x in metrics]))
             avg_mape = float(np.mean([x['valmape'] for x in metrics]))
-    
-            # report = {
-            #     'ticker': tkr,
-            #     'type': 'mm',
-            #     'date': date,
-            #     'test': test,
-            #     'config': config,
-            #     'real': [pred_data['Min'], pred_data['Max']],
-            #     'preds': {
-            #         'pred': avg_preds,
-            #         'std': std_preds,
-            #     },
-            #     'durations': {
-            #         'avg_duration': float(np.mean(durations)),
-            #         'raw': durations
-            #     },
-            #     'raw_preds': [x.tolist() for x in preds],
-            #     'metrics': {
-            #         'poor_data': poor_data,
-            #         'raw': metrics,
-            #         'avg_loss': avg_loss,
-            #         'avg_mae': avg_mae,
-            #         'avg_mape': avg_mape,
-            #         'avg_variation': [
-            #             (df[f'Min {config["pred_offset"]}'] - df['Min']).apply(lambda x: abs(x)).mean(),
-            #             (df[f'Max {config["pred_offset"]}'] - df['Max']).apply(lambda x: abs(x)).mean()
-            #         ],
-            #     }
-            # }
-            
-            # h.mkdir_conditional('results')
-            # with open(f'results/{tkr}_pred_mm_{pred_day}_{round(time.time())}.json', 'w') as file: file.write(json.dumps(report))
-            
 
             result_id = str(uuid.uuid4())
             with open(f'result_{result_id}.json', 'w') as file:

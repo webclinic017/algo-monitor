@@ -95,12 +95,13 @@
             this.updateWidth();
 
             let selectedItems = localStorage.getItem(this.tableId);
-            if (selectedItems)
-                this.selectedItems = JSON.parse(selectedItems);
-            
+            this.selectedItems = selectedItems ? JSON.parse(selectedItems) : this.selectedItems;
             let tableStacked = localStorage.getItem(this.tableId + '_stacked');
-            if (tableStacked)
-                this.tableStacked = JSON.parse(tableStacked);
+            this.tableStacked = tableStacked ? tableStacked == 'true' : this.tableStacked;
+            const sortBy = localStorage.getItem(this.tableId + '_sortby');
+            this.sortBy = sortBy || this.sortBy;
+            const sortDesc = localStorage.getItem(this.tableId + '_sortdesc');
+            this.sortDesc = sortDesc ? sortDesc == 'true' : this.sortDesc;
         }
 
         unmounted() {
@@ -108,17 +109,15 @@
             window.removeEventListener('resize', this.updateWidth);
         }
 
-        @Watch('sortBy', {
-            'immediate': true
-        })
-        onSortByChange() {
+        @Watch('sortBy')
+        onSortByChange(value: string, oldValue: string) {
+            localStorage.setItem(this.tableId + '_sortby', value);
             this.$emit('sortedItems', this.getSortedItems());
         }
 
-        @Watch('sortDesc', {
-            'immediate': true
-        })
-        onSortDescChange() {
+        @Watch('sortDesc')
+        onSortDescChange(value: boolean, oldValue: boolean) {
+            localStorage.setItem(this.tableId + '_sortdesc', value.toString());
             this.$emit('sortedItems', this.getSortedItems());
         }
 
@@ -190,7 +189,7 @@
 
         switchTableStacked() {
             this.tableStacked = !this.tableStacked;
-            localStorage.setItem(this.tableId + '_stacked', JSON.stringify(this.tableStacked));
+            localStorage.setItem(this.tableId + '_stacked', this.tableStacked.toString());
         }
 
         updateWidth() {

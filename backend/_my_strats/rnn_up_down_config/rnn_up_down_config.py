@@ -31,7 +31,7 @@ gpu = config_list[0]['use_gpu']
 ticker_iterations = config_list[0]['ticker_iterations']
 config_iterations = config_list[0]['config_iterations']
 
-cfg_num_out = 1
+cfg_num_out = 2
 
 LSTM_layer = CuDNNLSTM if gpu else LSTM
 
@@ -73,7 +73,7 @@ for tkr in tickers: # para cada ticker
         cfgs = config_list
 
         for offset in cfgs[0]['pred_offset']:
-        
+
             for c in cfgs: # para cada configuração (fará média com todas cfgs - ensemble)
                 macds_config = list(c['macds'].values())
 
@@ -88,7 +88,7 @@ for tkr in tickers: # para cada ticker
                 for cfg_i in range(config_iterations): # faça n testes para essa configuração
                     
                     start = time.time()
-                                    
+                    
                     config = c.copy()
                     max_crop = max(config['emas'] + config['pocids'] + sum(macds_config, []) + config['rsis'])
                     if test: max_crop += offset
@@ -141,20 +141,22 @@ for tkr in tickers: # para cada ticker
                         
                     for macd in macds_config:
                         df_init[f'MACD {macd[0]}-{macd[1]}'] = h.macd_series(df_init['Close'], macd[0], macd[1])
-                        
+                    
                     for rsi in config['rsis']:
                         df_init[f'RSI {rsi}'] = h.rsi_series(df_init['Close'], rsi)
-
-                    df_init.insert(0, f'Close {config["pred_offset"]}', df_init['Close'].shift(-offset))
                     
-                    pred_data = {
-                        'close': float(df_init.loc[df_init.index[-1], 'Close']) if test else float('nan')
-                    }
+                    df_pocid_future = pd.DataFrame(to_categorical(h.pocid_series(df_init['Close'], df_init['Close'].shift(-offset))), columns=[f'Down Future {config["pred_offset"]}',f'Up Future {config["pred_offset"]}'])
+                    df_init = pd.concat([df_pocid_future.set_index(df_init.index), df_init], axis=1)
                     
-                    df = df_init.copy()
+                    df = df_init.copy()                
                     
                     df = df[:-offset]
                     df = df[max_crop-offset:]
+                    
+                    pred_data = {
+                        'pocid': float(df.loc[df.index[-1], f'Up Future {config["pred_offset"]}']) if test else float('nan'),
+                        'close': float(df_init.loc[df_init.index[-1], 'Close'])
+                    }
                     
                     # Scale
                     
@@ -197,13 +199,13 @@ for tkr in tickers: # para cada ticker
                             model.add(LeakyReLU(alpha=0.05))
                         model.add(Dropout(config['dropout']))
             
-                    model.add(Dense(cfg_num_out, activation=None))
+                    model.add(Dense(cfg_num_out, activation='softmax'))
                     
                     opt = keras.optimizers.Adam(lr=1e-3, decay=1e-6)
                     
-                    model.compile(loss=tf.losses.huber_loss,
+                    model.compile(loss='categorical_crossentropy',
                                 optimizer=opt,
-                                metrics=['mae','mape'])
+                                metrics=['accuracy'])
                     
                     #h.mkdir_conditional('logs')
                     h.mkdir_conditional('models')
@@ -211,13 +213,13 @@ for tkr in tickers: # para cada ticker
                     checkpoint = ModelCheckpoint(filepath=f'models/weights_{guid}.hdf5', verbose=0, save_best_only=True)
                     
                     hist = model.fit(
-                        x_train, y_train,
-                        batch_size=config['batchs'],
-                        epochs=config['epochs'],
-                        validation_data=(x_test, y_test),
-                        callbacks=[checkpoint],#, tensorboard],
-                        verbose=0
-                    )
+                            x_train, y_train,
+                            batch_size=config['batchs'],
+                            epochs=config['epochs'],
+                            validation_data=(x_test, y_test),
+                            callbacks=[checkpoint],#, tensorboard],
+                            verbose=0
+                            )
                     
                     # Get Best
                     model.load_weights(f'models/weights_{guid}.hdf5')
@@ -225,7 +227,18 @@ for tkr in tickers: # para cada ticker
                     
                     # PRED
                     
-                    # y_result = model.predict(x_test)           
+                    # y_result = model.predict(x_test)
+                    
+                    # cm = confusion_matrix(y_test.argmax(axis=1), y_result.argmax(axis=1))
+                    # acc = (cm[0][0] + cm[1][1]) / np.sum(cm)  
+                    
+                    # df_result = pd.DataFrame({'Test': y_test[:, 1], 'Result': np.round(y_result[:, 1]), 'Result Raw': y_result[:, 1]})
+                    # df_result['Error'] = df_result.apply(lambda row: abs(row['Result Raw'] - 0.5) if row['Test'] != row['Result'] else None, axis=1)
+                    # df_result[['Normalized Error']] = df_result[['Error']].apply(lambda x: x/x.max())
+                    # df_result_wrong = df_result.loc[df_result['Test'] != df_result['Result']]
+                    # mean_error = df_result_wrong['Error'].sum() / len(df_result_wrong.index) if len(df_result_wrong.index) != 0 else 0
+                    #plt.plot(y_result[:, 1])
+                    #plt.show()              
                     
                     if test: df_pred_next = df_init[-(config['prev_range']+offset):].drop(df_init.tail(offset).index).copy()
                     else: df_pred_next = df_init[-(config['prev_range']):].copy() # utiliza até ultimo dia para prever dia + pred_offset
@@ -236,19 +249,17 @@ for tkr in tickers: # para cada ticker
                     
                     y_result_next = model.predict(x_pred_next)
                     print(y_result_next)
-                    print(pred_data['close'])
+                    print(pred_data['pocid'])
                     
                     # REPORT
                     
-                    preds.append(y_result_next[0][0])
+                    preds.append(y_result_next[0][1])
                     best_index = hist.history["val_loss"].index(min(hist.history["val_loss"]))
                     metrics.append({
-                        'valloss': round(hist.history["val_loss"][best_index],5),
-                        'loss': round(hist.history["loss"][best_index],5),
-                        'valmae': round(hist.history["val_mean_absolute_error"][best_index],3),
-                        'mae': round(hist.history["mean_absolute_error"][best_index],3),
-                        'valmape': round(hist.history["val_mean_absolute_percentage_error"][best_index],3),
-                        'mape': round(hist.history["mean_absolute_percentage_error"][best_index],3)
+                        'valloss': float(round(hist.history["val_loss"][best_index],5)),
+                        'loss': float(round(hist.history["loss"][best_index],5)),
+                        'valacc': float(round(hist.history["val_acc"][best_index],5)),
+                        'acc': float(round(hist.history["acc"][best_index],5)),
                     })
                     
                     keras.backend.clear_session()
@@ -262,11 +273,10 @@ for tkr in tickers: # para cada ticker
                     print('-'*10,'\n')
             
             if (len(preds) > 0):
-                avg_preds = float(np.mean(np.array(preds), axis=0))
-                std_preds = float(np.std(np.array(preds), axis=0))
-                avg_loss = float(np.mean([x['valloss'] for x in metrics]))
-                avg_mae = float(np.mean([x['valmae'] for x in metrics]))
-                avg_mape = float(np.mean([x['valmape'] for x in metrics]))
+                avg_preds = float(np.mean(preds))
+                std_preds = float(np.std(preds))
+                avg_loss = np.mean([x['valloss'] for x in metrics])
+                avg_acc = np.mean([x['valacc'] for x in metrics])
 
                 result_id = str(uuid.uuid4())
                 with open(f'result_{result_id}.json', 'w') as file:
@@ -274,7 +284,7 @@ for tkr in tickers: # para cada ticker
                         "id": result_id,			# id do resultado
                         "config": cfgs,			# configurações utilizadas pelo algoritmo
                         "result": {				# resultados do algoritmo, composto por "real", "pred" e "metrics"
-                            "real": [pred_data['close']],		# array com os valores reais (Ex.: para um algoritmo que prevê a abertura do dia seguinte, na lista pode constar o preço real da abertura, para comparação)
+                            "real": [pred_data['pocid']],		# array com os valores reais (Ex.: para um algoritmo que prevê a abertura do dia seguinte, na lista pode constar o preço real da abertura, para comparação)
                             "pred": [avg_preds],		# array com os valores da previsão
                             "metrics": {			# campo livre para salvar as métricas do algoritmo (Ex. MAE, MAPE, Accuracy...)
                                 'ticker': tkr,
@@ -282,9 +292,9 @@ for tkr in tickers: # para cada ticker
                                 'poor_data': poor_data,
                                 'raw': metrics,
                                 'avg_loss': avg_loss,
-                                'avg_mae': avg_mae,
-                                'avg_mape': avg_mape,
-                                'pred_std': [std_preds]
+                                'avg_acc': avg_acc,
+                                'pred_std': [std_preds],
+                                'close_reference': pred_data['close']
                             }
                         }
                     }

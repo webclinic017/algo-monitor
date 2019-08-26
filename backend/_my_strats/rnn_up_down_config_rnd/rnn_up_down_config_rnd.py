@@ -270,11 +270,12 @@ for tkr in tickers: # para cada ticker
                 # REPORT
                 
                 preds.append(y_result_next[0][1])
+                best_index = hist.history["val_loss"].index(min(hist.history["val_loss"]))
                 metrics.append({
-                    'valloss': float(round(min(hist.history["val_loss"]),5)),
-                    'loss': float(round(min(hist.history["loss"]),5)),
-                    'valacc': float(round(max(hist.history["val_acc"]),5)),
-                    'acc': float(round(max(hist.history["acc"]),5)),
+                    'valloss': float(round(hist.history["val_loss"][best_index],5)),
+                    'loss': float(round(hist.history["loss"][best_index],5)),
+                    'valacc': float(round(hist.history["val_acc"][best_index],5)),
+                    'acc': float(round(hist.history["acc"][best_index],5)),
                 })
                 
                 keras.backend.clear_session()
@@ -292,30 +293,6 @@ for tkr in tickers: # para cada ticker
             std_preds = float(np.std(preds))
             avg_loss = np.mean([x['valloss'] for x in metrics])
             avg_acc = np.mean([x['valacc'] for x in metrics])
-    
-            # report = {
-            #     'ticker': tkr,
-            #     'type': 'swing',
-            #     'date': date,
-            #     'test': test,
-            #     'config': config,
-            #     'real': [pred_data['pocid']],
-            #     'preds': {
-            #         'pred': [avg_preds],
-            #         'std': [std_preds],
-            #     },
-            #     'durations': {
-            #         'avg_duration': float(np.mean(durations)),
-            #         'raw': durations
-            #     },
-            #     'raw_preds': [x.tolist() for x in preds],
-            #     'metrics': {
-            #         'poor_data': poor_data,
-            #         'raw': metrics,
-            #         'avg_loss': avg_loss,
-            #         'avg_acc': avg_acc
-            #     }
-            # }
 
             result_id = str(uuid.uuid4())
             with open(f'result_{result_id}.json', 'w') as file:

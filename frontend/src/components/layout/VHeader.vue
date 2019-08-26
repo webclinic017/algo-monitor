@@ -20,8 +20,8 @@
         @Prop() value!: boolean;
 
         mounted() {
-            if (JSON.parse(localStorage.darkTheme)) (<any>this).$vuetify.theme.dark = true;
-            else (<any>this).$vuetify.theme.dark = false;
+            if (localStorage.darkTheme && localStorage.darkTheme == 'false') (<any>this).$vuetify.theme.dark = false;
+            else (<any>this).$vuetify.theme.dark = true;
         }
         
         switchTheme() {
