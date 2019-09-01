@@ -120,11 +120,3 @@ def yahoo_api(tkr, reset):
     df = df.dropna()
     df.to_csv('stocks.csv')
     return df, poor_data
-
-df1, poor_data = alpha_vantage_api('IVVB11.SAO', True)
-#['BOVA11','BOVV11','SMAL11','BRAX11']
-"""
-a = ['PETR4','ITUB4','BOVA11','IVVB11','BOVV11','SMAL11','MALL11','XBOV11','BRAX11']
-for i in a:
-    print(len(yahoo_api(f'{i}.SA', True).index))
-"""
