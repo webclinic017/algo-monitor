@@ -117,8 +117,8 @@ for tkr in tickers: # para cada ticker
                 if reset:
                     df_init, poor_data = get_data(tkr, reset)
                     if poor_data:
-                        df_init_fallback, poor_data_fallback = get_data_fallback(tkr, reset)
-                        if not poor_data_fallback:
+                        df_init_fallback, poor_data = get_data_fallback(tkr, reset)
+                        if not poor_data:
                             df_init = df_init_fallback.copy()
                 else:
                     df_init = get_data(tkr, reset)[0]
