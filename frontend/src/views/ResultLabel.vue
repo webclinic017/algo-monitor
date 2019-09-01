@@ -44,11 +44,12 @@
 		private label!: string;
 		private results: any[] | null = null;
 		private processing: boolean = false;
-		private sortedItems: string[] = [];
+		private sortedItems: any[] = [];
 		
 		async created() {
 			this.label = decodeURIComponent(this.$route.params.label);
 			this.results = (await axios.get(`/api/results/label/${this.label}`)).data;
+			this.sortedItems = this.results!;
 		}
 
 		async downloadAll() {

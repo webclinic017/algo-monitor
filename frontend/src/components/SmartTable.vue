@@ -261,6 +261,9 @@
     .fake-scroll ::v-deep {
         .resize-observer {
             height: 1px;
+            object {
+                display: none;
+            }
         }
 
         @media (max-width: 600px), (hover: none) {

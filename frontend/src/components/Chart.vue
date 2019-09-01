@@ -63,12 +63,15 @@
         }
 
         get flattenItemsKeys() {
-            return _.union(...this.items.map(e => {
+            let a = _.union(...this.items.map(e => {
                 let validColumns: string[] = [];
                 for (let k in e)
                     if (BetterCast.isNumber(e[k])) validColumns.push(k);
                 return validColumns;
             }));
+            console.log(this.items);
+            console.log(a);
+            return a;
         }
 
         get chartData() {
