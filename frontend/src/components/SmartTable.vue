@@ -109,15 +109,19 @@
             window.removeEventListener('resize', this.updateWidth);
         }
 
-        @Watch('sortBy')
+        @Watch('sortBy', {
+            immediate: true
+        })
         onSortByChange(value: string, oldValue: string) {
-            localStorage.setItem(this.tableId + '_sortby', value);
+            if (value) localStorage.setItem(this.tableId + '_sortby', value);
             this.$emit('sortedItems', this.getSortedItems());
         }
 
-        @Watch('sortDesc')
+        @Watch('sortDesc', {
+            immediate: true
+        })
         onSortDescChange(value: boolean, oldValue: boolean) {
-            localStorage.setItem(this.tableId + '_sortdesc', value.toString());
+            if (value) localStorage.setItem(this.tableId + '_sortdesc', value.toString());
             this.$emit('sortedItems', this.getSortedItems());
         }
 

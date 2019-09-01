@@ -49,7 +49,6 @@
 		async created() {
 			this.label = decodeURIComponent(this.$route.params.label);
 			this.results = (await axios.get(`/api/results/label/${this.label}`)).data;
-			this.sortedItems = this.results!;
 		}
 
 		async downloadAll() {
