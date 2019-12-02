@@ -23,7 +23,13 @@ def results(result_id, label):
         else:
             result = result.toJson()
     else:
-        result = Result.toListJson(get_all_results(label=label))
+        result_list = get_all_results(label=label)
+
+        if label is None:
+            result_list = list(set([x.config[0]['label'] for x in result_list]))
+
+        result = Result.toListJson(result_list)
+
     return result, 200, {'ContentType':'application/json'}
 
 @results_controller.route('/api/results/delete/', methods={'POST'})

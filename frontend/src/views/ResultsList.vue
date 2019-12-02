@@ -44,7 +44,9 @@
 
 		async created() {
 			this.results = (await axios.get('/api/results')).data;
-			this.labels = _.union(...this.results!.map(e => e.config.reduce((r,v) => r.concat(v.label), [])));
+			// this.labels = _.union(...this.results!.map(e => e.config.reduce((r,v) => r.concat(v.label), [])));
+			if (this.results)
+				this.labels = this.results;
 		}
 
 		get sortedLabels() {
